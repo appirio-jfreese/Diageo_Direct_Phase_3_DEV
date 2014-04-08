@@ -1,0 +1,93 @@
+<apex:component controller="Controller_Base">
+    <apex:attribute name="options" description="Select option list" type="list" required="true"/>
+    <apex:attribute name="noOfOptions" description="Number of options available" type="Integer" required="false"/>
+    <apex:attribute name="value" description="Value of select list" type="string" required="false"/>
+    <apex:attribute name="onchange" description="Onchange function name" type="string" required="false"/>
+
+    <apex:attribute name="width" description="Width" type="string" required="false"/>
+    <apex:attribute name="darkTheme" description="Theme" type="Boolean" required="false" default="false"/>
+    <apex:attribute name="slim" description="Slim" type="Boolean" required="false" default="false"/>
+        
+    <apex:attribute name="useSectionTheme" description="If true then use section color theme" type="boolean" required="false"/>
+    <apex:attribute name="trim" description="Is trim required" type="Boolean" required="false" default="true"/>
+
+    <apex:attribute name="bindToController" description="Bind to controller" type="Boolean" required="false" default="true"/>
+
+    <apex:variable value="{!randomId}" var="selectId"/>
+
+    <span style="display: {!IF(bindToController,'','none')};">
+        <apex:selectList value="{!value}" onchange="{!onchange}" size="1" styleClass="hidden orgSelect-{!selectId}">
+            <apex:selectOptions value="{!options}"/>
+        </apex:selectList>
+    </span>
+
+    <span style="display: {!IF(NOT(bindToController),'','none')};">
+        <select onchange="{!onchange}" size="1" class="hidden orgSelect-{!selectId}">
+            <apex:repeat value="{!options}" var="option">
+                <span style="display: {!IF(option['value'] == value, '','none')};">
+                    <option value="{!option['value']}" selected="selected">{!option["label"]}</option>
+                </span>
+                <span style="display: {!IF(option['value'] != value, '','none')};">
+                    <option value="{!option['value']}">{!option["label"]}</option>
+                </span>
+            </apex:repeat>
+        </select>
+    </span>
+
+    
+    <style>
+        .custom-select-box-values{
+            width: auto !important;
+        }
+    </style>
+    <span style="display: {!IF(noOfOptions==1, 'none', '')};">
+        <div class="custom-select-box-holder {!IF(slim, 'custom-select-box-holder-slim','')} {!if(trim=true,'trim','')}" style="width: {!IF(ISNULL(width), '200px', text(value(width))+'px')};">
+            <div id="{!selectId}" class="custom-select-box {!IF(slim, 'custom-select-box-slim','')}" style="color: {!IF(darkTheme != true, '#575757', '#ffffff')}; border-color: {!IF(darkTheme != true, 'auto', '#676767')};  background: {!IF(darkTheme != true, '#ffffff', '#7A7A7A')} !important;">
+                <div class="custom-select-box-header {!IF(slim, 'custom-select-box-header-slim','')}">
+                    <div class="custom-select-box-val {!IF(slim, 'custom-select-box-val-slim','')}" style="width: {!IF(ISNULL(width), '135px', text(value(width)-65)+'px')}; color: {!IF(darkTheme != true, 'auto', '#ffffff')};">
+                        <span style="display: {!IF(!ISNULL(value) && options.size!=0,'','none')};">
+                            <apex:repeat value="{!options}" var="option">
+                                <span style="display: {! if( option['value'] == value, '', 'none' )};">
+                                    <span style="display: {!IF(NOT(trim),'','none')};">
+                                        <span class="custom-select-box-val-holder">{!option["label"]}</span>
+                                    </span>
+                                    <span style="display: {!IF(trim,'','none')};">
+                                        <span class="custom-select-box-val-holder">{! IF (len(option["label"])>18, LEFT(option["label"], 18)+'...', option["label"])}</span>
+                                    </span>
+                                </span>
+                            </apex:repeat>
+                        </span>
+                        <span style="display: {!IF(ISNULL(value) && options.size!=0,'','none')};">
+                            {!options[0]["label"]}
+                        </span>
+                    </div>
+                    <div class="custom-select-box-button {!IF(slim,'custom-select-box-button-slim','')} {!IF(useSectionTheme == true, 'sectionBackground sectionBorder','')}">
+                        <div class="custom-select-button">
+                            <apex:image style="{!IF(slim,'height:18px; width:20px;','')}" url="{!URLFOR($Resource.CommonPage, 'images/selectArrow.png')}"/>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: {!IF(ISNULL(width), '190px', text(value(width)-10)+'px')} !important;">
+                    <span style="display: {!IF(NOT(trim),'','none')};">
+                        <div class='custom-select-box-values' style="width: {!IF(ISNULL(width), '190px', text(value(width)-10)+'px')} !important;">
+                        <apex:repeat value="{!options}" var="option">
+                            <div title="{!option['label']}" name='{!option["value"]}' class="bold custom-select-box-item {!IF(useSectionTheme == true, 'useSectionTheme','')} {!IF(option['value'] == value, 'current','')}">
+                                {!option["label"]}
+                            </div>
+                        </apex:repeat>
+                        </div>
+                    </span>
+                    <span style="display: {!IF(trim,'','none')};">
+                       <div class='custom-select-box-values' style="width: {!IF(ISNULL(width), '190px', text(value(width)-10)+'px')} !important;">
+                       <apex:repeat value="{!options}" var="option">
+                           <div title="{!option['label']}" name='{!option["value"]}' class="bold custom-select-box-item {!IF(useSectionTheme == true, 'useSectionTheme','')} {!IF(option['value'] == value, 'current','')}">
+                               {! IF (len(option["label"])>22, LEFT(option["label"], 22)+'...', option["label"])}
+                           </div>
+                       </apex:repeat>
+                       </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </span>
+</apex:component>

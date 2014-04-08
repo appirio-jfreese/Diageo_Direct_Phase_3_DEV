@@ -1,0 +1,135 @@
+<!------------------------------------------------------------------------------
+
+Updated By  : Basant Verma (Appirio JDC)   
+Date        : 01/22/2014
+Story/Task  : US1061/TA1875
+------------------------------------------------------------------------------->
+<apex:page standardController="Campaign" extensions="ViewAllCampaignMembers" sidebar="false" showHeader="false" showChat="false">
+ <apex:form id="frm">
+   <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>
+   <script src="{!URLFOR($Resource.jquery_vfFloatingHeaders)}"></script>   
+    <script>
+    $(document).ready(function() {
+        $('.floatingHeaderTable').vfFloatingHeaders();
+    });
+    
+    
+    function refreshJS(){
+        window.opener.location = '/apex/ViewAllCampaignMembers?Id={!camp.Id}';
+        window.close();         
+    }
+      
+    function openChildWindow(){
+      var windowW = 600;
+      var windowH = 250;
+      var windowX = (screen.width/2)-(windowW/2);
+      var windowY = (screen.height/2)-(windowH/2);
+      var childWin = window.open('/apex/ViewAllCampaignMembers?Id={!camp.Id}&method=CreateMember','AddCampaignMember','width='+windowW+',height='+windowH+',top='+windowY+',left='+windowX+',scrollbars,resizable');
+    }
+              
+    </script> 
+
+<style type="text/css" media="screen">
+         body {background-color:#F3F3EC;}
+        .bPageBlock {border-top:0; padding-bottom:0;}
+        .bPageBlock .pbBody {margin-right:0; padding:0;}
+        .bPageBlock .pbFooter {display:none;}
+         .tableContainer
+        {
+            height:150px; 
+            width: 100%;
+            overflow: auto;
+        }       
+        .floatingStyle 
+        { 
+            position:relative; 
+        }
+           
+</style>
+
+<apex:pageBlock rendered="{!NOT(isMemberRequest)}">
+   <apex:pageBlockButtons location="top">
+    <apex:commandButton value="Add Campaign Member" onclick="openChildWindow();" reRender="frm"/>
+  </apex:pageBlockButtons>
+
+   <apex:outputPanel styleClass="tableContainer" layout="block"> 
+    <apex:PageBlockTable value="{!campMembers}" var="campMember" width="100%" rules="rows" styleClass="floatingHeaderTable">
+         <!-- START : Changed By Basant to Show Campaign Memberes with Links -->
+         <!-- <apex:column value="{!IF(true,'Lead','')}" headerValue="Member Type" rendered="{!ISNULL(campMember.ContactId)}" />
+         <apex:column value="{!IF(true,'Contact','')}" headerValue="Member Type" rendered="{!NOT(ISNULL(campMember.ContactId))}" /> -->
+         
+         <apex:column style="text-align: left;" headerValue="Member Type">
+                        <a href="/{!IF(ISNULL(campMember.ContactId), campMember.LeadId, campMember.ContactId)}" target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), 'Lead', 'Contact')}"/></a>
+                 </apex:column>
+         
+<!--         <apex:column value="{!campMember.Status}" headerValue="Member Status"/>  -->
+         
+         <!-- <apex:column value="{!campMember.Contact.FirstName}" headerValue="First Name" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+         <apex:column value="{!campMember.Lead.FirstName}" headerValue="First Name" rendered="{!ISNULL(campMember.ContactId)}"/> -->
+         
+         <apex:column style="text-align: left;" headerValue="First Name">
+                        <a href="/{!campMember.Id}"  target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), campMember.Lead.FirstName, campMember.Contact.FirstName)}"/></a>
+                 </apex:column>
+         
+         <!-- <apex:column value="{!campMember.Contact.LastName}" headerValue="Last Name" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+         <apex:column value="{!campMember.Lead.LastName}" headerValue="Last Name" rendered="{!ISNULL(campMember.ContactId)}"/> -->
+        
+         <apex:column style="text-align: left;" headerValue="Last Name">
+                        <a href="/{!campMember.Id}"  target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), campMember.Lead.LastName, campMember.Contact.LastName)}"/></a>
+                 </apex:column>
+          <!-- END : Changed By Basant to Show Campaign Memberes with Links -->
+         
+                 <apex:column headerValue="Title">
+            <apex:outputfield value="{!campMember.Contact.Title}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+                        <apex:outputfield value="{!campMember.Lead.Title}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+
+                 <apex:column headerValue="Phone">
+            <apex:outputfield value="{!campMember.Contact.Phone}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+                        <apex:outputfield value="{!campMember.Lead.Phone}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+         
+         <apex:column headerValue="Mobile Phone">
+            <apex:outputfield value="{!campMember.Contact.MobilePhone}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+                        <apex:outputfield value="{!campMember.Lead.MobilePhone}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+
+                 <apex:column headerValue="Email">
+            <apex:outputfield value="{!campMember.Contact.Email}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+                        <apex:outputfield value="{!campMember.Lead.Email}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+
+                 <apex:column headerValue="Lead/Contact Owner">
+            <apex:outputfield value="{!campMember.Contact.Owner.Name}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+                        <apex:outputfield value="{!campMember.Lead.Owner.Name}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+         
+         <apex:column headerValue="Processed">
+            <apex:outputfield value="{!campMember.Processed__c}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+						<apex:outputfield value="{!campMember.Processed__c}" rendered="{!ISNULL(campMember.ContactId)}"/>
+         </apex:column>
+    </apex:PageBlockTable>
+    </apex:outputPanel>
+<!--    </div> -->
+</apex:pageBlock>
+
+<apex:pageBlock rendered="{!isMemberRequest}">
+  <apex:pageBlockButtons >
+    <apex:commandButton value="Save" action="{!createCampaignMember}" oncomplete="refreshJS();"/>
+    <apex:commandButton value="Cancel" onclick="window.close();"/>
+  </apex:pageBlockButtons>
+  <apex:pageBlockSection >
+    <apex:inputField value="{!lead.Company}"/>
+      <apex:inputField value="{!lead.FirstName}"/>
+      <apex:inputField value="{!lead.LastName}"/>
+      <apex:inputField value="{!lead.Phone}"/>
+      <apex:inputField value="{!lead.Email}"/>
+      <apex:inputField value="{!lead.Street}"/>
+      <apex:inputField value="{!lead.City}"/>
+      <apex:inputField value="{!lead.State}"/>
+      <apex:inputField value="{!lead.PostalCode}"/>
+      <apex:inputField value="{!lead.Country}"/>
+  </apex:pageBlockSection>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

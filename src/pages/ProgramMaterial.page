@@ -1,0 +1,100 @@
+<apex:page showheader="false" standardStylesheets="false" sidebar="false" 
+    title="Diageo : Program Material" controller="ProgramMaterialController">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>
+     
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery-ui-1.8.15.custom.min.js')}"></script> 
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.jscrollpane.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'imgscale.js')}"></script>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'utils.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.mousewheel.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.treeview.js')}"></script>  
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.autosize.js')}"></script>
+    <apex:stylesheet value="{!URLFOR($Resource.jquery, 'jquery.jscrollpane.css')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'autosuggest.js')}"></script>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.jqtransform.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.flexslider-min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/script.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.RF_JQueries, 'js/mod_script.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.RF_JQueries, 'js/PageHeaderJQ.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.modal.min.js')}"></script>
+    
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/base.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/skeleton-fluid.css')}" /> 
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/layout.css')}" />    
+
+    <apex:stylesheet value="{!URLFOR($Resource.DistributorContactSignUp, 'style.css')}"/>
+    
+  <style type="text/css">
+    body, html{
+        overflow: auto;
+    }
+    
+    .multiSelectPicklistRow {
+        vertical-align: top;
+    }
+    
+    .multiSelectPicklistCell {
+        vertical-align: middle;
+    }
+    
+    select {
+        width: 120px;
+    }
+    </style>
+  
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <div id="logo_buttons_search" class="row clearfix" style="padding-top: 75px;">
+          <a href="{!$Page.R_HomePage}" class="logo">
+            <img src="{!URLFOR($Resource.Responsive_Base, 'i/logo.png')}"/>
+          </a>        
+        </div>
+      </div>
+      
+      <div class="content bggradient">
+        <div class="content-wrapper-center left">
+          <div class="errorMsg">
+            <apex:pageMessages />
+          </div>
+          
+          <apex:pageBlock id="programMaterials">
+            <div class="cases-title">Program Materials</div>
+            <apex:form styleClass="newContactSubscription">
+              <div>
+                <apex:outputpanel rendered="{!!hasItems}">
+                  No Items available.
+                </apex:outputpanel>                
+								<apex:repeat value="{!mapCategoryToContentDesc}" var="category">
+									<apex:outputPanel >									  
+										<div class="form-header" style="font-size:18px"><span class="bold">{!category}</span></div>
+										<apex:repeat value="{!mapCategoryToContentDesc[category]}" var="subCategory">
+										  <div class="form-header" style="padding-left:15px;"><span class="bold">{!subCategory}</span></div>
+											<div class="left new-case-label" style="padding-left:30px;">                      
+	                      <apex:repeat value="{!mapCategoryToContentDesc[category][subCategory]}" var="contentItem">
+	                        <div class="float-left form-section" style="font-size:15px;">
+	                          <a href="{!IF(NOT(ISBLANK(contentItem.share_link__c)), contentItem.share_link__c, contentItem.share_link_low__c)}" target="_blank">{!contentItem.Title_Display__c}</a>                              
+	                        </div>
+	                        <div class="clear-float"></div>
+	                      </apex:repeat>                      
+	                    </div>
+	                  </apex:repeat>
+									</apex:outputPanel>
+								</apex:repeat>
+              </div>
+            </apex:form>
+          </apex:pageBlock>
+        </div>   
+      </div>
+        
+      <div class="login-footer">
+          <a href="">&copy; Diageo 2011</a>
+      </div>
+    </div>
+  </div>
+  
+</apex:page>

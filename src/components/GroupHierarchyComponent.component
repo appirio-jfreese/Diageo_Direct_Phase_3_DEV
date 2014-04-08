@@ -1,0 +1,52 @@
+<apex:component controller="GroupHierarchyController">
+    <apex:attribute name="currentId" description="This is the campaign Id for displaying Acccount Hierarchy" type="String" required="true" assignTo="{!campaignId}"/>
+    <apex:attribute name="isFirst" description="" type="String" required="true" assignTo="{!firstLoad}"/>
+    <apex:outputPanel id="hierarchyDiv">
+        <apex:repeat value="{!headquarters}" var="acct">
+          <input type="checkbox" id="{!acct.Id}" name="{!acct.ParentId}_{!acct.Id}" class="bannerCheckBox store_cb {!acct.ParentId}_cb"/>
+          <apex:outputLink value="/{!acct.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+            <apex:outputText style="" value="{!acct.Name}" />
+          </apex:outputLink><br/>
+          <apex:repeat value="{!hierarchy[acct.Id]}" var="level_e">
+              <div style="padding-left: {!level_e.depth}px;">
+                  <input type="checkbox" id="{!level_e.a.Id}" name="{!level_e.a.ParentId}_{!level_e.a.Id}" class="bannerCheckBox {!level_e.a.ParentId}_cb"/>
+                  <apex:outputLink value="/{!level_e.a.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                    <apex:outputText value="{!level_e.a.Name}" />
+                  </apex:outputLink><br/>
+                  <apex:repeat value="{!hierarchy[level_e.a.Id]}" var="level_d">
+                      <div style="padding-left: {!level_d.depth}px;">
+                          <input type="checkbox" id="{!level_d.a.Id}" name="{!level_d.a.ParentId}_{!level_d.a.Id}" class="bannerCheckBox {!level_d.a.ParentId}_cb"/>
+                          <apex:outputLink value="/{!level_d.a.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                            <apex:outputText value="{!level_d.a.Name}" />
+                          </apex:outputLink><br/>
+                          <apex:repeat value="{!hierarchy[level_d.a.Id]}" var="level_c">
+                              <div style="padding-left: {!level_c.depth}px;">
+                                  <input type="checkbox" id="{!level_c.a.Id}" name="{!level_c.a.ParentId}_{!level_c.a.Id}" class="bannerCheckBox {!level_c.a.ParentId}_cb"/>
+                                  <apex:outputLink value="/{!level_c.a.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                                    <apex:outputText value="{!level_c.a.Name}" />
+                                  </apex:outputLink><br/>
+                                  <apex:repeat value="{!hierarchy[level_c.a.Id]}" var="level_b">
+                                    <div style="padding-left: {!level_b.depth}px;">
+                                        <input type="checkbox" id="{!level_b.a.Id}" name="{!level_b.a.ParentId}_{!level_b.a.Id}" class="bannerCheckBox {!level_b.a.ParentId}_cb"/>
+                                        <apex:outputLink value="/{!level_b.a.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                                            <apex:outputText value="{!level_b.a.Name}" />
+                                        </apex:outputLink><br/>
+                                        <apex:repeat value="{!hierarchy[level_b.a.Id]}" var="level_a">
+                                            <div style="padding-left: {!level_a.depth}px;">
+                                                <input type="checkbox" id="{!level_a.a.Id}" name="{!level_a.a.ParentId}_{!level_a.a.Id}" class="bannerCheckBox {!level_a.a.ParentId}_cb"/>
+                                                <apex:outputLink value="/{!level_a.a.id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                                                    <apex:outputText value="{!level_a.a.Name}" />
+                                                </apex:outputLink><br/>
+                                            </div>
+                                        </apex:repeat>                                        
+                                    </div>
+                                  </apex:repeat>
+                              </div>
+                          </apex:repeat>                           
+                      </div>
+                  </apex:repeat>                  
+              </div>
+          </apex:repeat>
+        </apex:repeat>
+    </apex:outputPanel>
+</apex:component>

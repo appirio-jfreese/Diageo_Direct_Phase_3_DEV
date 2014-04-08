@@ -1,0 +1,45 @@
+<apex:page standardController="Campaign" extensions="Controller_CampaignDetail" tabStyle="Campaign">
+    <apex:sectionHeader title="Campaign Edit" subTitle="{!campaign.Name}"/>
+    <apex:form >
+        <apex:pageBlock tabStyle="Campaign">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Save" action="{!doSave}"/>
+                <apex:commandButton value="Save & New" action="{!doSave}" oncomplete="back();"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" title="Campaign Detail" collapsible="false">
+                <apex:inputField value="{!campaign.Name}" required="true"/>
+<!--                <apex:inputField value="{!campaign.Scheduled_Send_Date__c}"/>  -->
+                <apex:pageBlockSectionItem />
+
+               
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Communication Template"/>
+                    <apex:selectList id="chooseTemplate" value="{!campaign.Communication_Template__c}" size="1" >
+                     <apex:selectOptions value="{!options}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem />
+<!--                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Scheduled Send Date"/>
+                    <apex:inputField value="{!campaign.Scheduled_Send_Date__c}" />
+                </apex:pageBlockSectionItem>  
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:pageBlockSectionItem />
+                <apex:inputField value="{!campaign.Status}"/>  -->
+                
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection columns="2" title="Program Information" collapsible="false">
+                <apex:inputField value="{!campaign.Program__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    <script type="text/javascript">
+        function back()
+        { 
+          window.parent.location.href={!baseUrl} +'/701/e'; 
+        }
+    </script>
+</apex:page>

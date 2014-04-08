@@ -1,0 +1,196 @@
+<apex:page id="pg" controller="MM_BrandMediaController" sidebar="false" showHeader="false" standardStylesheets="false" action="{!loadAllImages}">
+	<head>
+		<meta name="google" value="notranslate"/>
+		<meta name="viewport" content="width=600, maximum-scale=1.0" />
+		<apex:stylesheet value="{!$Resource.RecipeStyles}"/>
+		<apex:includeScript value="{!URLFOR($Resource.jQueryLib, '/js/jquery-1.6.2.min.js')}"  />
+		<apex:includeScript value="{!URLFOR($Resource.jQueryLib, '/js/jquery-ui-1.8.16.custom.min.js')}"  />
+		<apex:outputpanel rendered="{!IF(CONTAINS(UserAgent,'MSIE'),true, false)}"><link rel="stylesheet" type="text/css" href="{!$Resource.ie7MediaPageCSS}" /></apex:outputpanel>
+		<apex:outputpanel rendered="{!IF(CONTAINS(UserAgent,'MSIE'),false, true)}"><link rel="stylesheet" type="text/css" href="{!$Resource.mediaPageCSS}" /></apex:outputpanel>
+		<script>
+			function redir(){
+			   var redirect = '{!redirect}';
+			   window.opener.location.href=redirect;
+			   window.close();
+		   	}
+
+		    function clickMediaSelection(mediaId) {
+		    	if('{!editMode}' == 'false' && mediaId != null && mediaId != '') {
+				}
+			}
+		</script>
+
+		<style>
+			#pagination{
+				height:64px;
+				width:100%;
+				margin-top:50px;
+				margin-left:30px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="mainContainer">
+			<div class="topLevelHeader popupHeader">
+	  			<div class="topLevelTitle">
+					<apex:image value="/resource/1320197973000/logo2"/>
+	  			</div>
+			</div>
+		    <div id="bodyHeader" class="popupHeader"></div>
+		    <apex:pageMessages id="pgmsg"/>
+		    <br/>
+
+		    <div id="pagination">
+		     	<apex:form id="frm1">
+		     		<apex:outputpanel id="controls" >
+						<div style="width:942px;height:65px;">
+							<script type="text/javascript">/** searchTerm ---  totalRecords --- {}  **/</script>
+							<apex:outputpanel >
+								<div style="float:left;width:93%;height:25px;">
+		                 			<apex:repeat value="{!alphabets}" var="c" id="alphaBets">
+		                                <apex:commandLink value="{!c}" rerender="filterSection,imagePanel" status="statusImg" action="{!filterImages}">
+		                                	<apex:param name="selectedAlphabet" AssignTo="{!selectedAlphabet}" value="{!c}"/>
+		                                 </apex:commandLink>&nbsp;
+		                                <apex:outputText value=" | " rendered="true" />
+		                  			</apex:repeat>
+		               			</div>
+		               			<br/>
+		          			</apex:outputpanel>
+						</div>
+					</apex:outputpanel>
+				</apex:form>
+		    </div> <!-- End of Pagination Div -->
+
+			<apex:pageBlock id="SelectMedia" >
+				<div id="selectMediaLeft" styleClass="currentImageStyle" >
+					<apex:outputPanel id="CurrentImage">
+						<div class="noImageSelected">
+							<div id="trashcan">
+								<apex:form id="frm3">
+									<apex:commandLink action="{!disassociateMedia}" oncomplete="clickMediaSelection('{!currentImageId}');" rerender="mainContainer,CurrentImage"><img src="{!$Resource.trashcan}" width="30" height="30" class="trashcanImage"/></apex:commandLink>
+								</apex:form>
+							</div> <!-- End of TrashCan Div -->
+							<apex:outputPanel rendered="{!currentImageId!=''}">
+								<div class="imageCont">
+									<img src="https://c.{!currentServerInstance}.content.force.com/sfc/servlet.shepherd/version/download/{!currentImageId}"  height="180" style="max-width:180px;"/>
+								</div>
+							</apex:outputPanel>
+							<apex:outputPanel rendered="{!currentImageId==''}">
+								<div class="currentImageStyle"><div class="noImageText">NO IMAGE SELECTED</div></div>
+							</apex:outputPanel>
+						</div> <!-- End of No Image Selected Div -->
+
+					</apex:outputPanel> <!-- End of OutputPanel CurrentImage -->
+
+				<div id="uploadButtonDiv">
+					<div id="uploadDiv">
+						<apex:form id="uploadForm" onsubmit="return false;">
+							<div id="hiddenUpload">
+								<apex:actionRegion >
+									<apex:inputFile styleClass="inputFileStyle" value="{!myImage.VersionData}" onchange="showLabelDiv()" filename="{!myImage.PathOnClient}"/>
+								</apex:actionRegion>
+							</div>
+							<input type="button" id="imageSelectButton" class="actionButton" value="Upload New Image"/>
+
+							<apex:actionFunction name="initiateUpload" action="{!upload}"/>
+							<div id="imageLabelDiv">
+								<span class="imageNameLabel">Name your image:</span>
+								<apex:inputText styleClass="imageLabelInput" id="currentImageName" value="{!currentImageName}"/>
+								<input type="button" onClick="saveImage()" class="actionButton greenActionButton imageLabelButton" value="Save"/>
+								<input type="button" onClick="hideLabelDiv(this)" class="actionButton imageLabelButton" value="Cancel"/>
+							</div>
+							<script type="text/javascript">
+								function saveImage () {
+									initiateUpload();
+									hideLabelDiv();
+								}
+								function showLabelDiv () {
+									div = document.getElementById("imageLabelDiv");
+									if (div.style.display='none') {
+										div.style.display='block';
+									}
+									fullPath=$('input[type=file]').val();
+									var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+							        var filename = fullPath.substring(startIndex);
+							        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+							                filename = filename.substring(1);
+							        }
+									$('.imageLabelInput').val(filename);
+								}
+								function hideLabelDiv (cancelButton) {
+									div = document.getElementById("imageLabelDiv");
+									div.style.display='none';
+
+									form = cancelButton.form;
+									form.reset();
+								}
+
+								$(document).ready(function() {
+									$('#imageSelectButton').click(function() {
+									    $('input[type=file]').trigger('click');
+									});
+								});
+
+								$(document).ready(function() {
+									$('.filterInput').keydown(function (e) {
+									  var keyCode = e.keyCode || e.which;
+									  if (keyCode == 13) {
+									    $('.filterButton').trigger('click');
+									  }
+									});
+								});
+							</script>
+						</apex:form>
+					</div>
+	 			</div>
+		</div>
+
+				<div id="verticalSeparator"></div>
+				<apex:form id="frm4">
+				<div id="selectMediaRight">
+					<div id="filterBar">
+						<apex:outputpanel id="filterSection">
+						<span class="selectedMediaHeader" style="margin-top:6px;text-align:center;width:55px;">Filter Images:&nbsp;</span>
+						<div style="margin-left:81px;margin-top:-15px;"><apex:inputText id="fixDONOTDELETE" styleClass="hidden"/>
+							<apex:inputText styleClass="filterInput" value="{!imageNameFilter}"/>&nbsp;
+						</div>
+						<div style="margin-left:175px;margin-top:-24px;"><apex:commandButton action="{!filterImages}" rerender="imagePanel" value="Filter" styleClass="smallActionButton greenActionButton filterButton"/>
+						&nbsp;<apex:commandButton action="{!filterImages}" rerender="filterSection,imagePanel" value="Reset" styleClass="smallActionButton">
+								<apex:param name="imageNameFilter" assignTo="{!imageNameFilter}" value=""/>
+							  </apex:commandButton>
+						</div>
+						</apex:outputpanel>
+					</div>
+					<apex:outputPanel styleClass="imagePanel" id="imagePanel">
+						<apex:repeat value="{!mediaList}" var="mediaImage">
+							<apex:outputPanel styleClass="imageContainer">
+							<div class="imageheight">
+								<apex:commandLink rerender="CurrentImage" action="{!associateMedia}"><img  src="https://c.{!currentServerInstance}.content.force.com/sfc/servlet.shepherd/version/download/{!mediaImage.Content_id__c}" class="imageContainerWidth" height="100"/>
+									<apex:param name="mediaId" value="{!mediaImage.Id}" assignTo="{!mediaId}"/>
+								</apex:commandLink>
+							</div>
+								<span class="imageText">{!LEFT(mediaImage.Name,13)}</span>
+
+							</apex:outputPanel>
+						</apex:repeat>
+						<apex:outputPanel rendered="{!mediaList.size==0}">
+							<div id="noImagesAvailable">
+								NO IMAGES AVAILABLE
+							</div>
+						</apex:outputPanel>
+					</apex:outputPanel>
+					</div>
+				</apex:form>
+			</apex:pageBlock>
+
+			<apex:form id="frm5">
+				<apex:outputPanel id="out"></apex:outputPanel>
+				<div class="mediaButtons">
+					<apex:commandButton id="saveImagesId" action="{!saveImages}" oncomplete="redir();" value="Save" styleClass="actionButton greenActionButton "></apex:commandButton>&nbsp;&nbsp;
+					<apex:commandButton value="Cancel"  onclick="window.close();" styleClass="actionButton "/>
+	    		</div>
+			</apex:form>
+		</div>
+	</body>
+</apex:page>

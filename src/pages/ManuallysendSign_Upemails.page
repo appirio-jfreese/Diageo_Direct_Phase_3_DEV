@@ -1,0 +1,57 @@
+<!-----------------------------------------------------------------------------------------------------------------
+Name        : ManuallysendSign_Upemails
+
+Created By  : Siddharth varshneya (Appirio JDC)   
+Date        : 11/12/13
+Story/Task  : US897/TA1591
+------------------------------------------------------------------------------------------------------------------->
+<apex:page controller="ManuallySendEmailsController" >
+  <apex:form id="frmMain">
+    <apex:actionFunction status="ajax-status" name="sendEmailFunc" action="{!sendMail}" rerender="frmMain">
+        <apex:param name="switchSection" assignTo="{!currentObject}" value=""/>
+    </apex:actionFunction>
+    <apex:pagemessages />
+    <apex:pageBlock id="myblock">
+      <apex:pageBlockSection >
+        <apex:inputField value="{!tempContact.Email}"/>
+      </apex:pageBlockSection>
+      <apex:pageBlockButtons location="bottom">
+        <apex:commandButton value="Validate" action="{!validateEmail}" reRender="frmMain"/>
+        <apex:commandButton value="Send" rendered="{!showSendBtn}" reRender="frmMain" action="{!sendMail}" />
+      </apex:pageBlockButtons>
+    </apex:pageBlock>
+    <apex:repeat id="rpt" value="{!mapEmails}" var="obj">
+      <table style="margin-left:100px;">
+        <tr>
+          <td><b>{!mapEmails[obj].objType}</b>
+          </td> 
+        </tr>
+        <tr>
+          <td style="width:100px">Name :</td>
+          <td style="width:200px">{!mapEmails[obj].objName}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Phone :</td>
+          <td>{!mapEmails[obj].Phone}</td>
+          <td><apex:commandButton value="Send anyway" reRender="frmMain" rendered="{!mapEmails[obj].showBtn}" onclick="sendEmailFunc('{!obj}')"/></td>
+        </tr>
+        <tr>
+          <td>Email :</td>
+          <td>{!mapEmails[obj].EmailId}</td>
+          <td></td>
+        </tr>
+        <tr style="display: {!IF(mapEmails[obj].objType != 'Contact :','none','')};">
+          <td>Subscribe Status :</td>
+          <td>{!mapEmails[obj].subscribeStatus}</td>
+          <td></td>
+        </tr>
+        <tr style="display: {!IF(mapEmails[obj].objType != 'Contact :','none','')};">
+          <td>Unscribed :</td>
+          <td>{!mapEmails[obj].unsubscribed}</td>
+          <td></td>
+        </tr>                
+      </table><br/><br/>
+    </apex:repeat> 
+  </apex:form>
+</apex:page>

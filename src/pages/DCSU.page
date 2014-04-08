@@ -1,0 +1,60 @@
+<apex:page showheader="false" standardStylesheets="false" sidebar="false" 
+	title="Diageo : Distributor Contact Sign-Up" controller="DistributorContactSignUpController">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+	<apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/base.css')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/skeleton-fluid.css')}" /> 
+	<apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/layout.css')}" />
+	<apex:stylesheet value="{!URLFOR($Resource.DistributorContactSignUp, 'style.css')}"/>
+	<style type="text/css">
+			.title-text {
+				width:			100%;
+				font-size:		19px;
+				font-weight:	bold;
+				padding-top:	8px;
+				padding-bottom:	4px;	
+				text-align:		left;
+			}
+	</style>
+	<div class="wrapper">
+		<div class="header">
+			<div class="logotype">&nbsp;</div>
+   	</div>
+    <div class="container">
+			<div class="errorMsg" style="{!IF(isSuccess, 'padding:20%;color:BLACK;', '')}">
+      	<apex:pageMessages />
+      </div>
+			<apex:pageBlock id="newContact" rendered="{!NOT(isSuccess)}">
+				<div class="faq-header">
+					<div class="title-text"><apex:outputText value="{!$Label.DistributorContactPageTitle}"/></div>
+				</div>
+
+				<div class="faq-section">			
+					<div class="faq-map">
+						<div class="header-map">Contact Information</div>
+						<apex:form styleClass="newContactSubscription">
+							<apex:pageBlockSection columns="2" collapsible="false">
+							<apex:inputField id="contNameF" value="{!distribuorCon.FirstName}" required="true"/>
+							<apex:inputField id="contNameL" value="{!distribuorCon.LastName}" required="true"/>
+							<apex:inputField id="contTitle" value="{!distribuorCon.Title}" required="true"/>
+							<apex:pageBlockSectionItem />
+							<apex:inputField id="contEmail" value="{!distribuorCon.Email}" required="true"/>
+							<apex:inputField id="contPhone" value="{!distribuorCon.Phone}" required="true" onBlur="javascript:format_phone(this, event)"
+	                	onFocus="if(this.value==this.defaultValue)this.value='';" onkeydown="javascript:format_phone(this, event)"/>
+	            <apex:inputField id="contDistributorName" value="{!distribuorCon.Distributor_Name__c}" required="true"/>
+	            <apex:inputField id="contAddCity" value="{!distribuorCon.Distributor_City__c}" required="true"/>
+	            <apex:inputField id="contAddState" value="{!distribuorCon.Distributor_State__c}" required="true"/>
+	            <apex:inputField id="contAddZip" value="{!distribuorCon.Distributor_Postal_Code__c}" required="true"/>
+	            <apex:inputField id="SubscribeInterestedIn" value="{!distribuorCon.Subscribe_Interested_In__c}" required="true"/>
+	            <apex:pageBlockSectionItem />
+	            <apex:inputField id="SubscribePremise" value="{!distribuorCon.Subscribe_Premise__c}" required="true"/>
+	           	</apex:pageBlockSection>
+						</apex:form>	
+					</div>
+        </div>
+			</apex:pageBlock>
+    </div>
+    <div class="login-footer">
+			<a href="">&copy; Diageo 2011</a>
+		</div>
+	</div>
+</apex:page>

@@ -1,0 +1,291 @@
+<apex:page standardController="Diageo_Brand__c" showHeader="false" sidebar="false" extensions="MM_RecipeBrandController" standardstylesheets="false" applyBodyTag="false" applyHtmlTag="false" id="pg">
+    <html>
+        <head>
+            <apex:includeScript value="{!URLFOR($Resource.jQueryLib, '/js/jquery-1.6.2.min.js')}"  />
+            <apex:includeScript value="{!URLFOR($Resource.jQueryLib, '/js/jquery-ui-1.8.16.custom.min.js')}"  />
+            <apex:stylesheet value="{!URLFOR($Resource.jQueryLib, '/css/ui-lightness/jquery-ui-1.8.16.custom.css')}" />
+            <apex:outputpanel rendered="{!IF(CONTAINS(UserAgent,'MSIE 7.0'),true, false)}"><link rel="stylesheet" type="text/css" href="{!$Resource.ie7MasterRecipePageCSS}" /></apex:outputpanel>
+            <apex:outputpanel rendered="{!IF(CONTAINS(UserAgent,'MSIE 7.0'),false, true)}">
+                <link rel="stylesheet" type="text/css" media = "only screen and (min-width:1080px)" href="{!$Resource.testCSS}" />
+                <link rel="stylesheet" type="text/css" href="{!$Resource.masterRecipePageCSS}" />
+
+            </apex:outputpanel>
+
+    <style>
+        .visitedClass1{
+            background-Color:White;
+        }
+        .colorClass{
+            color:#820527;
+            font-style:normal;
+        }
+
+        .localeFilterList {
+            font-family: Arial, Sans-Serif;
+            font-size: 15px;
+            padding: 4px;
+            border: solid 1px #85b1de;
+            width: 110px;
+            height: 29px;
+            -webkit-border-radius: 6px;
+            border: solid 1px black;
+            -moz-box-shadow: inset 0 0 1px #A5A5A5;
+            -webkit-box-shadow: inset 0 3px 5px #A5A5A5;
+        }
+        .recipeElementsContainer {
+            width: 1000px !important;
+        }
+    </style>
+
+    <script>
+        if(navigator.appName == 'Microsoft Internet Explorer') {
+            intId = window.setInterval("checkPopup()",500);
+        }
+
+        function popupImageWindow(brandId) {
+            var popupWin;
+            var intId = 0;
+            popupWin = window.open('/apex/MM_BrandMedia?brandId=' + brandId + '&editMode='+{!editMode},'imageWindow','location=1,status=1,scrollbars=no,resizable=no,titlebar=yes,width=770,height=670');
+
+            checkPopup= function() {
+                if (intId != 0) {
+                    if (popupWin.closed) {
+                        window.clearInterval(intId);
+                        intId = 0;
+                        document.location.reload();
+                    }
+                }
+            }
+        }
+
+    </script>
+  </head>
+    <body>
+    <div class="outerDiv">
+        <c:DashBoardHeader />
+        <div id="blanket" style="display:none;"></div>
+        <apex:form id="theForm">
+            <div id="bodyHeader" style="height: 50px;">
+                <div id="headerInner">
+                    <div class="header arrow3">
+                        <apex:outputLink value="apex/MM_RecipeDashboard"><apex:image title="Dashboard" value="/resource/1320379988000/home"/>
+                        </apex:outputLink>
+                    </div>
+                </div>
+            </div>
+
+            <apex:outputPanel >
+                <div id="bodyHeaderBlack" >
+                    <div id="headerInnerBlack">
+                        <apex:outputText value="Edit Recipe Brand" styleclass="headerBlack" rendered="{!IF(editMode && NOT(isCreateNew),true,false)}"></apex:outputText>
+                        <apex:outputText value="Recipe Brand" styleclass="headerBlack" rendered="{!IF(editMode == false, true, false)}"></apex:outputText>
+                    </div>
+                    <div class="error">
+                        <apex:outputLabel id="err" value="{!errorMessage}" ></apex:outputLabel>
+                    </div>
+                    <div class="fl">
+                        <apex:outputpanel rendered="{!editMode}" style="vertical-align:middle;">
+                           <apex:commandButton value="Save" action="{!savebrand}" styleClass="actionButton blueButton" style="width:100px;"/>
+                        </apex:outputpanel>&nbsp;&nbsp;
+
+                        <apex:outputpanel rendered="{!editMode}" style="vertical-align:middle;">
+                           <apex:commandButton value="Cancel" action="{!cancelEdit}" styleClass="pinkButton actionButton" style="width:100px;"/>
+                        </apex:outputpanel>
+                        <apex:outputPanel rendered="{!!editMode}" style="vertical-align:middle;">
+                            <apex:commandLink value="Edit Brand" action="{!editBrand}" styleClass="actionButton pinkButton" style="width:100px;"/>
+                        </apex:outputPanel>
+                    </div> <!-- end fl -->
+                </div> <!-- end body header black -->
+            </apex:outputPanel>
+
+            <div id="innerDiv" style="padding-top: 20px;">
+                <div class="bodyContainer x" style="padding-top: 0px !important">
+                        <apex:outputPanel id="opbodyContainer">
+
+                            <div id="imageColumn" style="width:150px; margin-top:110px;">
+                                <apex:outputText value="Brand Image" style="font-weight:bold;align:center;font-size:large;"/>
+                                <div id="blank1"></div>
+                                <apex:outputPanel id="imageContainer">
+
+                                    <apex:outputPanel rendered="{!hasImages}">
+                                          <div id="brandImageContainer" align="center" class="imge">
+                                            <apex:image value="https://c.{!currentServerInstance}.content.force.com/sfc/servlet.shepherd/version/download/{!swapId}"  height="180" style="max-width:149px;" rendered="{!hasImages}"/>
+                                          </div>
+                                    </apex:outputPanel>
+
+                                    <apex:outputPanel rendered="{!!hasImages}">
+                                        <div id="brandImageContainer2" class="imge" align="center">
+                                            <div id="brandImageContainer3" style="height: 150px;">
+                                                <apex:image value="{!$Resource.StockBottle}" width="60" height="60" style="margin-top: 40px;"/>
+                                            </div>
+                                        </div>
+                                    </apex:outputPanel>
+
+                                    <apex:outputPanel rendered="true" styleclass="buttonContainer">
+                                       <apex:CommandLink rendered="{!IF(showManageImages,true,false)}" styleClass="pinkButton largeActionButton" onclick="popupImageWindow('{!recipeBrand.Id}')" action="{!upsertTempRecipeBrand}" value="Manage Image">
+                                       </apex:CommandLink>
+                                    </apex:outputPanel>
+
+                                </apex:outputPanel>
+
+                            </div><!-- end of image column -->
+
+                            <div>
+                                <div id="mainContent" style="margin-top: 40px;">
+                                    <!-- Details -->
+                                     <div class="pbottom"></div>
+                                     <div class="secHead" style="width: 1050px;margin-top:50px;">
+                                        <font size="4">Recipe Brand Detail</font>&nbsp;
+                                     </div>
+
+                                     <div class="secBottom">
+                                         <div class="recipeElementsContainer {!cssStatus}">
+                                             <apex:outputPanel id="opAttributes1">
+                                                 <div class="pright wd">
+                                                     <apex:outputText value="Recipe Brand Name: " />
+                                                     <apex:outputPanel rendered="{!editMode}">
+                                                         <apex:inputField value="{!recipeBrand.Name}" id="brandNameText"/>
+                                                     </apex:outputPanel>
+                                                     <apex:outputPanel rendered="{!!editMode}">
+                                                         <apex:outputText styleClass="status" value="{!recipeBrand.Name}" />
+                                                     </apex:outputPanel>
+                                                     <br/>
+                                                 </div>
+                                             </apex:outputPanel>
+                                             <br/><br/>
+
+                                             <apex:outputPanel id="opAttributes2">
+                                                 <div class="pright wd">
+                                                     <apex:outputText value="Locale: " />
+                                                     <apex:outputPanel >
+                                                         <apex:outputText styleClass="status" value="{!recipeBrand.Locale__c}"/>
+                                                     </apex:outputPanel>
+                                                     <br/>
+                                                 </div>
+                                                 <div class="wd1">
+                                                     <apex:outputText value="Category: " />&nbsp;
+                                                     <apex:outputPanel rendered="{!editMode}">
+                                                         <apex:inputField value="{!recipeBrand.Category__c}" />
+                                                     </apex:outputPanel>
+                                                     <apex:outputText rendered="{!!editMode}" styleClass="status" value="{!recipeBrand.Category__c}"/>
+                                                     <br/>
+                                                 </div>
+                                             </apex:outputPanel>
+                                             <br/><br/>
+
+                                             <apex:outputPanel styleClass="clear">
+                                                    <div class="wd pright">
+                                                        <apex:outputText value="SAP Level 3 Code: " />
+                                                        <apex:outputPanel rendered="{!editMode}" >
+                                                                <apex:inputTextarea styleClass="inputText" rows="2" style="width:80%" value="{!recipeBrand.SAP_Level_3_Code__c}"/>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.SAP_Level_3_Code__c}"/>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                                    <div class="wd1">
+                                                        <apex:outputText value="SAP Level 3 Desciription: " />
+                                                        <apex:outputPanel rendered="{!editMode}">
+                                                               <apex:inputTextarea styleClass="inputText" rows="2" style="width:95%" value="{!recipeBrand.SAP_Level_3_Descr__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.SAP_Level_3_Descr__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                               </apex:outputPanel>
+                                             <br/><br/>
+                                             <apex:outputPanel styleClass="clear">
+                                                    <div class="wd pright">
+                                                        <apex:outputText value="Generic Brand: " />
+                                                        <apex:outputPanel rendered="{!editMode}" >
+                                                                <apex:inputTextarea styleClass="inputText" rows="2" style="width:80%" value="{!recipeBrand.Generic_Brand__c}"/>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.Generic_Brand__c}"/>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                                    <div class="wd1">
+                                                        <apex:outputText value="Short Description: " />
+                                                        <apex:outputPanel rendered="{!editMode}">
+                                                               <apex:inputTextarea styleClass="inputText" rows="2" style="width:95%" value="{!recipeBrand.Short_Description__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.Short_Description__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                               </apex:outputPanel>
+                                               <br/><br/>
+                                             <apex:outputPanel styleClass="clear">
+                                                    <div class="wd pright">
+                                                        <apex:outputText value="Diageo Brand Tags: " />
+                                                        <apex:outputPanel rendered="{!editMode}" >
+                                                                <apex:inputTextarea styleClass="inputText" rows="5" style="width:80%" value="{!recipeBrand.Diageo_Brand_Tags__c}"/>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.Diageo_Brand_Tags__c}"/>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                                    <div class="wd1">
+                                                        <apex:outputText value="Long Description: " />
+                                                        <apex:outputPanel rendered="{!editMode}">
+                                                               <apex:inputTextarea styleClass="inputText" rows="5" style="width:95%" value="{!recipeBrand.Long_Description__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!!editMode}">
+                                                            <apex:outputText styleClass="status" value="{!recipeBrand.Long_Description__c}"/>
+                                                            <div id="blank clear">
+                                                            </div>
+                                                        </apex:outputPanel>
+                                                        <br/>
+                                                    </div>
+                                               </apex:outputPanel>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recipe Brand Products -->
+                                    <apex:outputPanel styleClass="downPad block clear " rendered="{!IF(NOT(editMode), true, false)}">
+                                        <div class="secHead "><font size="4">Recipe Brand Products</font></div>
+                                        <div class="recipeElementsContainer {!cssStatus}" style="margin-left:10px;">
+                                            <div>
+                                                <apex:repeat value="{!recipeBrandProducts}" var="brandProduct" >
+                                                    <apex:image styleClass="imgStar" width="15" height="15" title="Featured Brand" value="/resource/1320379988000/goldStar" />
+                                                    <apex:outputlink value="/apex/MM_RecipeBrandProduct?brandId={!brandId}&Id={!brandProduct.Id}" style="color: black;">
+                                                        {!brandProduct.Name}
+                                                    </apex:outputlink>
+                                                    <br/>
+                                                </apex:repeat>
+                                            </div>
+                                            <br/>
+                                            <div class="floatLeft">
+                                                <apex:commandLink styleClass="nLinks aLink" value="+ Add a Product" action="{!addAProduct}"/>
+                                            </div>
+                                        </div>
+                                 </apex:outputPanel>
+                                <!--  End of Recipe Brand Products -->
+
+                                </div>
+                                <!--  End of Main Content -->
+                            </div>
+                        </apex:outputPanel>
+                    </div>
+                </div>
+            </apex:form>
+        </div>
+    </body>
+
+</html>
+</apex:page>

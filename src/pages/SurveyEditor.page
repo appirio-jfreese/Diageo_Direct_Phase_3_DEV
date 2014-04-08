@@ -1,0 +1,157 @@
+<apex:page extensions="SurveyEditorController" showHeader="true" standardStyleSheets="false" applyBodyTag="false" standardController="DMS_Survey__c">
+
+	<apex:stylesheet value="{!URLFOR($Resource.SurveyEditor_CSS)}"/>
+	<style>
+		.buttons .add                               { background: #0a0 url('{!URLFOR($Resource.SurveyEditor_Core,"/img/add.png")}')   no-repeat 8px 4px !important; width:38px; height:33px;}
+		.buttons .add-if                            { background: #0a0 url('{!URLFOR($Resource.SurveyEditor_Core,"/img/add-if.png")}') no-repeat 8px 4px !important; width:38px; height:33px; }
+		.buttons .remove                            { background: #a00 url('{!URLFOR($Resource.SurveyEditor_Core,"/img/remove.png")}') no-repeat 8px 4px; width:38px; height:33px;
+														border-bottom-right-radius: 6px; border-top-right-radius: 6px !important}
+		.popup .ok                                  { width: 77px !important; margin-left: 90px !important; padding: 4px !important; 
+													  background: none !important; background-color: #35f !important; color: #fff !important; border: 1px solid #333 !important; 
+													  border-radius: 6px !important;}
+		.popup .ok:hover                            { background-color: #57f !important; }
+		.name 										{font-size: x-large !important;}
+	</style>
+	<!--  CONFIG VARIABLES -->
+	<script>
+		//the survey ID
+		_SURVEY_ID = '{!DMS_Survey__c.Id}'; 
+		//remote action to fetch all data (survey and children)
+		_CONTROLLER_GETSURVEY_ACTION = '{!$RemoteAction.SurveyEditorController.getSurvey}';
+		//remote action to create a new question
+		_CONTROLLER_UPSERTQUESTION_ACTION = '{!$RemoteAction.SurveyEditorController.upsertQuestion}';
+		//remote action to set the first question on the survey
+		_CONTROLLER_SETFIRSTQUESTION_ACTION = '{!$RemoteAction.SurveyEditorController.setFirstQuestion}';
+		//remote action to remove a question
+		_CONTROLLER_REMOVEQUESTION_ACTION = '{!$RemoteAction.SurveyEditorController.removeQuestion}';
+	</script> 
+	   
+    
+	<body style="">
+	
+	 <div class="flash">
+      <span class="message">Question deleted.</span>
+      <a class="undo" href="#">Undo</a> 
+    </div>
+
+    <div class="saving">Saving...</div>
+    <div class="loading" style="display: none;">Loading...</div>
+	
+    <div class="survey">
+      <h2 class="name">Loading survey...</h2>
+      <br/><br/>
+      <a class="createQuestion" href="#" style="display: none;">Add First Question</a>
+
+      <div class="questions">
+      </div>
+    </div>
+    
+
+
+    <a class="keyboard-help-icon" href="#"><img src="{!URLFOR($Resource.SurveyEditor_Core,'/img/keyboard.png')}"/></a>
+    <div class="keyboard-help">
+      <h4>Keyboard Shortcuts</h4>
+      <dl>
+        <dt>Enter:</dt><dd>Goto Next Question</dd>
+        <dt>Shift + Enter:</dt><dd>Goto Previous Question</dd>
+        <dt>Ctrl + Enter:</dt><dd>Insert a new Question</dd>
+        <dt>Ctrl + Shift + Enter:</dt><dd>Insert a new Conditional Question</dd>
+      </dl>
+    </div>
+
+	<!-- TEMPLATES -->
+    <div id="templates">
+
+      <div class="question">
+
+        <div class="conditional">
+          <div class="arrow"><img src="{!URLFOR($Resource.SurveyEditor_Core,'/img/add-gray.png')}"/></div>
+          If <input class="answer" value="Yes" title="Ask the following questions, if the answer to the previous question was..."/>
+        </div>
+
+        <div class="row">
+          <div class="controls">
+            <div class="number">
+              <span class="label"></span>
+
+              <a href="#" class="move-up">Up</a>
+              <a href="#" class="move-down">Down</a>
+              <a href="#" class="move-left">&lt;</a>
+              <a href="#" class="move-right">&gt;</a>
+
+            </div><div class="text-controls">
+
+              <input class="text" placeholder="Type question here"/>
+
+              <a class="answers" href="#" title="Answers allowed">
+                <div class="drop-down-arrow">&#9660;</div>
+                <span class="type"></span>
+                <span class="values"></span>
+              </a>
+
+              <div class="popup">
+              
+                <div>
+                  <div class="row">
+                    <label>Type:</label>
+                    <select class="type">
+                      <option value="Count">Count</option>
+                      <option value="Price">Price</option>
+                      <option value="Select">Select (One)</option>
+                      <option value="Multi-Select">Select (Multiple)</option>
+                      <option value="Text">Text</option>
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <label>Answers:</label>
+                    <input class="values" value="Yes, No"/>
+                  </div>
+                  
+                  <div class="row same-row">
+                    <label>Include 'None of the Above':</label><input type="checkbox" class="includeNone" checked="false"/>
+                  </div>
+
+                  <div class="row">
+                    <label>Label for Additional Comments:</label>
+                    <input class="commentsLabel" value=""/>
+                  </div>
+
+                  <div class="row">
+                    <button class="ok">OK</button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div><div class="buttons">
+            <a href="#" title="Add a question after this one" class="add button"></a>
+            <a href="#" title="Add a conditional question" class="add-if button"></a>
+            <a href="#" title="Remove this question" class="remove button"></a>
+          </div>
+        </div>
+
+        <!-- Spacer is used when the last child question -->
+        <div class="spacer">&nbsp;</div>
+
+      </div>
+
+    </div>
+    
+    <script src="{!URLFOR($Resource.SurveyEditor_Core,'/jquery-1.10.2.js')}"></script>
+    <script src="{!URLFOR($Resource.SurveyEditor_Core,'/jquery.color-2.1.2.min.js')}"></script><!-- For animating colors (see $.fn.pulse()) -->
+    <script src="{!URLFOR($Resource.SurveyEditor_Core,'/es5.js')}"></script> <!-- Polyfils for ES5 Array methods (e.g. map, filter) -->
+    <script src="{!URLFOR($Resource.SurveyEditor_Salesforce)}"></script> <!-- CRUD methods for salesforce -->
+    <script src="{!URLFOR($Resource.SurveyEditor_Questions)}"></script> <!-- questions.js -->
+    <script src="{!URLFOR($Resource.SurveyEditor_UI)}"></script> <!-- ui.js -->
+    <script src="{!URLFOR($Resource.SurveyEditor_Data)}"></script> <!-- data.js -->
+    <!-- 
+    <script src="{!URLFOR($Resource.ForceLogic_3714_SF)}"></script> 
+    <script src="{!URLFOR($Resource.ForceLogic_3714_Question)}"></script> 
+    <script src="{!URLFOR($Resource.ForceLogic_3714_UI)}"></script>
+    <script src="{!URLFOR($Resource.ForceLogic_3714_Data)}"></script> 
+    -->
+    </body>
+
+</apex:page>

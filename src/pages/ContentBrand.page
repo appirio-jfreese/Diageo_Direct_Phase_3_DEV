@@ -1,0 +1,416 @@
+<apex:page standardController="ContentBrand__c" extensions="ControllerContentBrand">
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>
+  <apex:sectionHeader title="Content Brand"/>  
+  <apex:outputPanel id="messages">
+    <apex:messages styleClass="errorMessagesList" />
+  </apex:outputPanel>
+
+  <apex:form id="frm">
+  <c:WaitingComponent />
+    <apex:actionFunction name="reloadListsAjax" action="{!populateContentBrands}" oncomplete="reloadLists();" reRender="messages,frm"/>
+    <apex:actionFunction name="reloadLists" action="{!populateBrands}" oncomplete="lockScreen(false);" reRender="messages,pbContentBrand,pbBrand"/>
+    <apex:actionFunction name="reloadListsAfterSearch" action="{!reloadListsAfterSearch}" oncomplete="lockScreen(false);" reRender="messages,pbContentBrand,pbBrand"/>
+    <apex:actionFunction name="reloadListsAfterSearch1" action="{!reloadListsAfterSearch1}" oncomplete="lockScreen(false);" reRender="messages,pbContentBrand,pbBrand"/>            
+    <apex:actionFunction action="{!doSortBrands}" name="sortBrandRecords" oncomplete="lockScreen(false);" reRender="messages,pbBrand">
+      <apex:param name="sortFieldBrand" assignTo="{!pageUtilBrand.sortField}" value="" />    
+    </apex:actionFunction>
+    <apex:actionFunction action="{!doSortContentBrands}" name="sortContentBrandRecords" oncomplete="lockScreen(false);" reRender="messages,pbContentBrand">
+      <apex:param name="sortFieldContentBrand" assignTo="{!pageUtilContentBrand.sortField}" value="" />    
+    </apex:actionFunction>
+    
+    <apex:pageBlock >
+	  <apex:pageBlockSection columns="1">
+		<apex:pageBlockSectionItem >
+	      <apex:outputLabel value="Content Description"/>
+	      <apex:inputField value="{!ContentBrand__c.Content_Description__c}" rendered="{!contentDescriptionEditable}" onchange="lockScreen(true);reloadListsAjax();"/>	           				        				           			
+	    </apex:pageBlockSectionItem>
+	    <apex:pageBlockSectionItem >
+	      <apex:outputField value="{!ContentBrand__c.Content_Description__c}" rendered="{!!contentDescriptionEditable}"/>	  
+	    </apex:pageBlockSectionItem>
+	  </apex:pageBlockSection>
+    </apex:pageBlock>
+             
+    <apex:pageBlock title="Content Brand List" mode="edit" rendered="{!!contentDescriptionEditable}" id="pbContentBrand">
+      <apex:pageBlockButtons >
+        <apex:commandButton value="Delete" action="{!deleteRelations}" onclick="lockScreen(true);" oncomplete="reloadListsAjax();" reRender="messages,pbContentBrand,pbBrand"/>
+      </apex:pageBlockButtons>
+      
+      <div style="padding:12px 0px 12px 12px;">
+	   	<apex:outputLabel value="Search by brand name: " for="accountBL"/>&nbsp;
+	   	<apex:inputText id="accountBL" value="{!pageUtilContentBrand.searchStr}" rendered="{!!contentDescriptionEditable}"/>	   	
+        <apex:outputLabel value="Theme " for="theme"/>&nbsp;
+        <apex:inputField id="theme" value="{!pageUtilContentBrand.brand.Classification__c}"/>&nbsp;
+        <apex:outputLabel value="Brand Type " for="brandType"/>&nbsp;
+        <apex:inputField id="brandType" value="{!pageUtilContentBrand.brand.Brand_Type__c}"/>&nbsp;
+        <apex:outputLabel value="Diageo Direct Visible " for="diageoDirect"/>&nbsp;
+        <apex:inputField id="diageoDirect" value="{!pageUtilContentBrand.brand.diageo_direct_visible__c}"/>&nbsp;
+	   	<button onclick="lockScreen(true); reloadListsAfterSearch(); return false;">GO</button>
+      </div> 
+      
+      <apex:pageBlockTable value="{!contentBrandList}" var="c" id="listTable">
+        <apex:column style="width:40px;">
+           <apex:facet name="header"><input type="checkbox" id="selectAllContent"/> Select All</apex:facet>                     
+           <apex:inputCheckbox value="{!c.selected}" styleClass="contentCheckbox"/>
+        </apex:column>
+          
+          <apex:column >
+              <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.Name');lockScreen(true);">
+			      Brand Name
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.Name', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet>
+			  <apex:outputLink value="/{!c.cb.Brand__c}"> {!c.cb.brand__r.name}</apex:outputLink>                      
+            </apex:column>
+            
+            <apex:column >
+			  <apex:facet name="header">
+		        <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.Classification__c');lockScreen(true);">
+		          Theme
+		          <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.Classification__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+		        </apex:outputLink>
+		      </apex:facet> 
+		      <apex:outputText value="{!c.cb.Brand__r.Classification__c}" />			          
+		    </apex:column>
+		
+		    <apex:column >
+		      <apex:facet name="header">
+		        <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.Brand_Type__c');lockScreen(true);">
+			      Brand Type
+			    <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.Brand_Type__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet> 
+	          <apex:outputText value="{!c.cb.Brand__r.Brand_Type__c}" />			          
+	        </apex:column>
+		
+		    <apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.Diageo_direct_visible__c');lockScreen(true);">
+			      Diageo Direct Visible
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.Diageo_direct_visible__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet> 
+			  <apex:outputText value="{!c.cb.Brand__r.diageo_direct_visible__c}" />			          
+			</apex:column>
+			
+			<apex:column >
+	          <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L1_Classification__c');lockScreen(true);">
+			      L1: Classification
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L1_Classification__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet>
+			  <apex:outputField value="{!c.cb.Brand__r.L1_Classification__c}"/>		          		          
+			</apex:column>
+			
+			<apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L2_Group_Type__c');lockScreen(true);">
+			      L2: Group/Type
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L2_Group_Type__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet>
+			  <apex:outputField value="{!c.cb.Brand__r.L2_Group_Type__c}"/>			          
+			</apex:column>
+			
+			<apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L3_Brand__c');lockScreen(true);">
+			      L3: Brand
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L3_Brand__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet>
+			  <apex:outputField value="{!c.cb.Brand__r.L3_Brand__c}"/>		          		          
+			</apex:column>
+			
+			<apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L4_Brand_Variant__c');lockScreen(true);">
+			      L4: Brand Variant
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L4_Brand_Variant__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet> 
+			  <apex:outputField value="{!c.cb.Brand__r.L4_Brand_Variant__c}"/>			          
+			</apex:column>
+			
+			<apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L5_Individual_Variant__c');lockScreen(true);">
+			      L5: Individual Variant
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L5_Individual_Variant__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet> 
+			  <apex:outputField value="{!c.cb.Brand__r.L5_Individual_Variant__c}"/>			          
+			</apex:column>
+			
+			<apex:column >
+			  <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortContentBrandRecords('Brand__r.L6_Volume__c');lockScreen(true);">
+			      L6: Volume
+			      <img src="{!IF(pageUtilContentBrand.sortField = 'Brand__r.L6_Volume__c', IF(pageUtilContentBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			  </apex:facet> 
+			  <apex:outputField value="{!c.cb.Brand__r.L6_Volume__c}"/>	          
+			</apex:column>
+                    
+          </apex:pageBlockTable>
+          <apex:outputPanel rendered="{!(contentBrandList.size == 0)}">
+            No records available.
+          </apex:outputPanel>
+          
+          <apex:outputPanel layout="block" styleClass="paginator" id="otpNav" rendered="{!!(contentBrandList.size == 0)}">
+           <span class="prevNextLinks">
+                
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilContentBrand.setCtrl.hasPrevious}" onclick="lockScreen(true);" action="{!first}" oncomplete="lockScreen(false);" rerender="pbContentBrand"  >
+                 <apex:image value="/s.gif" alt="First" styleClass="first" />
+               </apex:commandLink> 
+             </span> 
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="First" title="First"   styleClass="firstoff" rendered="{!NOT( pageUtilContentBrand.setCtrl.hasPrevious)}" />
+             </span>
+             
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilContentBrand.setCtrl.hasPrevious}"  onclick="lockScreen(true);" action="{!previous}" oncomplete="lockScreen(false);" rerender="pbContentBrand" >
+                 <apex:image value="/s.gif" alt="Previous" title="Previous"   styleClass="prev" />
+                 Previous
+               </apex:commandLink>    
+             </span>
+         
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Previous" title="Previous" styleClass="prevoff" rendered="{!NOT(pageUtilContentBrand.setCtrl.hasPrevious)}" /> 
+             </span>
+          
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilContentBrand.setCtrl.hasNext}" onclick="lockScreen(true);" action="{!next}" oncomplete="lockScreen(false);" rerender="pbContentBrand" > 
+                 Next
+               <apex:image value="/s.gif" alt="Next"  title="Next" styleClass="next" />
+               </apex:commandLink>
+             </span>
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Next" title="Next"    styleClass="nextoff" rendered="{!NOT(pageUtilContentBrand.setCtrl.hasNext)}" /> 
+             </span>
+             
+             <span class="prevNext">
+                <apex:commandLink rendered="{!pageUtilContentBrand.setCtrl.hasNext}" onclick="lockScreen(true);"   action="{!last}" oncomplete="lockScreen(false);" rerender="pbContentBrand" >
+                    <apex:image value="/s.gif" alt="Last" title="Last" styleClass="last" />
+                </apex:commandLink>
+             </span>
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Last" title="Last"    styleClass="lastoff" rendered="{!NOT(pageUtilContentBrand.setCtrl.hasNext)}" /> 
+             </span>
+             
+             <span class="right" style="color:black">Page {!IF(ISBLANK(pageUtilContentBrand.setCtrl.PageNumber),0,pageUtilContentBrand.setCtrl.PageNumber)} of {!totalPages}</span> 
+           </span>
+         </apex:outputPanel> 
+       </apex:pageBlock>
+       
+       <apex:pageBlock title="Available Brand List" mode="edit" rendered="{!!contentDescriptionEditable}" id="pbBrand">
+         <apex:pageBlockButtons >
+           <apex:commandButton value="Add" action="{!addRelations}"  onclick="lockScreen(true);" oncomplete="reloadListsAjax();" reRender="messages,pbContentBrand,pbBrand"/>
+         </apex:pageBlockButtons> 
+         
+         <div style="padding:12px 0px 12px 12px;">
+	       <apex:outputLabel value="Search by brand name: " for="avaliableS"/>&nbsp;
+	       <apex:inputText id="avaliableS" value="{!pageUtilBrand.searchStr}" rendered="{!!contentDescriptionEditable}"/>
+	       <apex:outputLabel value="Theme " for="theme"/>&nbsp;
+           <apex:inputField id="theme" value="{!pageUtilBrand.brand.Classification__c}"/>&nbsp;
+           <apex:outputLabel value="Brand Type " for="brandType"/>&nbsp;
+           <apex:inputField id="brandType" value="{!pageUtilBrand.brand.Brand_Type__c}"/>&nbsp;
+           <apex:outputLabel value="Diageo Direct Visible " for="diageoDirect"/>&nbsp;
+           <apex:inputField id="diageoDirect" value="{!pageUtilBrand.brand.diageo_direct_visible__c}"/>&nbsp;
+	        <button onclick="lockScreen(true);reloadListsAfterSearch1(); return false;">GO</button>
+         </div>
+            	
+         <apex:pageBlockTable value="{!brandList}" var="b" id="listTable2">
+             <apex:column style="width:40px;">
+               	<apex:facet name="header"><input type="checkbox" id="selectAllBrands"/> Select All</apex:facet>                        
+                <apex:inputCheckbox value="{!b.selected}" styleClass="brandCheckbox"/>
+             </apex:column>
+             <apex:column >
+               <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('Name');lockScreen(true);">
+			       Brand Name
+			       <img src="{!IF(pageUtilBrand.sortField = 'Name', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet>
+			   <apex:outputLink value="/{!b.b.Id}"> {!b.b.name}</apex:outputLink>                      
+             </apex:column>
+             
+             <apex:column >
+               <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('Classification__c');lockScreen(true);">
+			       Theme
+			       <img src="{!IF(pageUtilBrand.sortField = 'Classification__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet>
+			   <apex:outputText value="{!b.b.Classification__c}" />                      
+             </apex:column>
+             
+             <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('Brand_Type__c');lockScreen(true);">
+			      Brand Type
+			      <img src="{!IF(pageUtilBrand.sortField = 'Brand_Type__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet> 
+			   <apex:outputText value="{!b.b.Brand_Type__c}" />			          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('Diageo_direct_visible__c');lockScreen(true);">
+			       Diageo Direct Visible
+			       <img src="{!IF(pageUtilBrand.sortField = 'Diageo_direct_visible__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet> 
+			   <apex:outputText value="{!b.b.diageo_direct_visible__c}" />			          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L1_Classification__c');lockScreen(true);">
+			       L1: Classification
+			       <img src="{!IF(pageUtilBrand.sortField = 'L1_Classification__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet>
+			   <apex:outputField value="{!b.b.L1_Classification__c}"/>			          		          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L2_Group_Type__c');lockScreen(true);">
+			      L2: Group/Type
+			      <img src="{!IF(pageUtilBrand.sortField = 'L2_Group_Type__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet>
+			   <apex:outputField value="{!b.b.L2_Group_Type__c}"/>			          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L3_Brand__c');lockScreen(true);">
+			       L3: Brand
+			      <img src="{!IF(pageUtilBrand.sortField = 'L3_Brand__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet>
+			   <apex:outputField value="{!b.b.L3_Brand__c}" />
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			    <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L4_Brand_Variant__c');lockScreen(true);">
+			      L4: Brand Variant
+			      <img src="{!IF(pageUtilBrand.sortField = 'L4_Brand_Variant__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			    </apex:outputLink>
+			   </apex:facet> 
+			   <apex:outputField value="{!b.b.L4_Brand_Variant__c}"/>		          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			     <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L5_Individual_Variant__c');lockScreen(true);">
+			       L5: Individual Variant
+			       <img src="{!IF(pageUtilBrand.sortField = 'L5_Individual_Variant__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			     </apex:outputLink>
+			   </apex:facet> 
+			   <apex:outputField value="{!b.b.L5_Individual_Variant__c}"/>			          
+			 </apex:column>
+			 
+			 <apex:column >
+			   <apex:facet name="header">
+			      <apex:outputLink value="javascript:void(0);" onclick="sortBrandRecords('L6_Volume__c');lockScreen(true);">
+			        L6: Volume
+			        <img src="{!IF(pageUtilBrand.sortField = 'L6_Volume__c', IF(pageUtilBrand.isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+			      </apex:outputLink>
+			   </apex:facet> 
+			   <apex:outputField value="{!b.b.L6_Volume__c}"/>			          
+			 </apex:column>
+             
+           </apex:pageBlockTable>
+           
+           <apex:outputPanel rendered="{!(brandList.size == 0)}">
+             No records available.
+           </apex:outputPanel>         
+         
+         <apex:outputPanel layout="block" styleClass="paginator" id="otpNav" rendered="{!!(brandList.size == 0)}">
+           <span class="prevNextLinks">
+                
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilBrand.setCtrl.hasPrevious}" onclick="lockScreen(true);" action="{!firstB}" oncomplete="lockScreen(false);" rerender="pbBrand"  >
+                 <apex:image value="/s.gif" alt="First" styleClass="first" />
+               </apex:commandLink> 
+             </span> 
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="First" title="First"   styleClass="firstoff" rendered="{!NOT( pageUtilBrand.setCtrl.hasPrevious)}" />
+             </span>
+             
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilBrand.setCtrl.hasPrevious}"  onclick="lockScreen(true);" action="{!previousB}" oncomplete="lockScreen(false);" rerender="pbBrand" >
+                 <apex:image value="/s.gif" alt="Previous" title="Previous"   styleClass="prev" />
+                 Previous
+               </apex:commandLink>    
+             </span>
+         
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Previous" title="Previous" styleClass="prevoff" rendered="{!NOT(pageUtilBrand.setCtrl.hasPrevious)}" /> 
+             </span>
+          
+             <span class="prevNext">
+               <apex:commandLink rendered="{!pageUtilBrand.setCtrl.hasNext}" onclick="lockScreen(true);" action="{!nextB}" oncomplete="lockScreen(false);" rerender="pbBrand" > 
+                 Next
+               <apex:image value="/s.gif" alt="Next"  title="Next" styleClass="next" />
+               </apex:commandLink>
+             </span>
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Next" title="Next"    styleClass="nextoff" rendered="{!NOT(pageUtilBrand.setCtrl.hasNext)}" /> 
+             </span>
+             
+             <span class="prevNext">
+                <apex:commandLink rendered="{!pageUtilBrand.setCtrl.hasNext}" onclick="lockScreen(true);"   action="{!lastB}" oncomplete="lockScreen(false);" rerender="pbBrand" >
+                    <apex:image value="/s.gif" alt="Last" title="Last" styleClass="last" />
+                </apex:commandLink>
+             </span>
+             
+             <span class="prevNext">
+               <apex:image value="/s.gif" alt="Last" title="Last"    styleClass="lastoff" rendered="{!NOT(pageUtilBrand.setCtrl.hasNext)}" /> 
+             </span>
+             
+             <span class="right" style="color:black">Page {!IF(ISBLANK(pageUtilBrand.setCtrl.PageNumber),0,pageUtilBrand.setCtrl.PageNumber)} of {!totalPagesB}</span> 
+           </span>
+         </apex:outputPanel> 
+         
+        </apex:pageBlock>        
+    </apex:form>
+    <script type="text/javascript">
+    jQuery(document).ready(function() {
+      //lockScreen(true);
+		jQuery('#selectAllContent').live('click', function(){
+			if(jQuery(this).is(':checked')){
+				jQuery('.contentCheckbox').attr('checked', true);
+			} else {
+				jQuery('.contentCheckbox').attr('checked', false);
+			}
+		});
+		jQuery('#selectAllBrands').live('click', function(){
+			if(jQuery(this).is(':checked')){
+				jQuery('.brandCheckbox').attr('checked', true);
+			} else {
+				jQuery('.brandCheckbox').attr('checked', false);
+			}
+		});
+		
+		var conDesc = '{!ContentBrand__c.Content_Description__c}';
+		if(conDesc != null && conDesc.trim() != ''){
+		  lockScreen(true);
+		  reloadListsAjax();
+		}
+
+    });
+    </script>        
+</apex:page>

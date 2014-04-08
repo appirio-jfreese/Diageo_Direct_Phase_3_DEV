@@ -1,0 +1,256 @@
+<!-----------------------------------------------------------------------------------------------------------------
+Name        : R_Cases.page
+
+Created By  : Randy Wandell (Appirio)   
+Date 		: 6/27/13
+Story/Task	: US584
+
+Created By  : Basant Kumar Verma (Appirio JDC)   
+Date 		: 12/23/13
+Story/Task	: US937
+------------------------------------------------------------------------------------------------------------------->
+<apex:page showheader="false" standardStylesheets="false" sidebar="false" title="Diageo" controller="Controller_Cases">
+
+<body class="contact-new-case-page contact-case-page">
+
+<div class="wrapper">
+	<div class="container">
+	
+		<!-- PAGE HEADER -->
+	  <c:R_PageHeader showThemeSelector="false" isLoggedIn="{!isLoggedIn}" basketItemsNumber="{!basketItemsNo}" />
+	  <script type="text/javascript">
+	  	pageViewed('Home Page');
+	  </script>
+	                
+	  <!-- content -->
+	  <div class="content clearfix">
+			<!--  BREADCRUMB -->
+    	<apex:outputPanel id="beadcrumblinks">
+      	<c:R_pageBreadcrumb breadcrumbLinks="{!breadCrumbLinks}" menuLinks="{!menuLinks}"/>
+      </apex:outputPanel>
+				
+			<apex:form >
+				<apex:actionFunction name="addNewCaseJS" action="{!addNewCase}" />
+        <apex:actionFunction name="changeViewStatus" action="{!changeViewStatus}"/>
+        <apex:actionFunction name="showMyCases" action="{!showMyCases}"/>
+				<apex:actionFunction name="addNewComment" action="{!addNewComment}" rerender="caseContent, messages, newCommentText" onComplete="jqTransformScript();"/>        
+				<apex:outputPanel id="messages">
+					<apex:messages styleClass="errorMessagesList" />
+        </apex:outputPanel>
+      	
+      	<apex:pageBlock rendered="{! if( currentCase.Id != null , 'true', 'false' )}" id="caseContent">
+					<h2 class="with-status">
+						<span class="title">
+            	{!currentCase.Subject} - #{!currentCase.CaseNumber}
+            </span><br/>
+            <span class="status">Status: {!currentCase.Status} &nbsp;&nbsp; 
+            	Last Updated: 
+            	<apex:outputText value="{0,date, MM'/'dd'/'yy, HH:mm z}">
+              	<apex:param value="{!currentCase.LastModifiedDate}" /> 
+              </apex:outputText>
+            </span>
+          </h2>
+					
+					<apex:outputPanel rendered="{!if(currentCaseAttachments.size >  0, true, false)}">
+          	<apex:repeat value="{!currentCaseAttachments}" var="att">
+            	<span class="bold">&nbsp;&nbsp;Attachment: </span>
+            		<a href="{!URLFOR($Action.Attachment.Download, att.id)}" style="color: #1C8195; font-size: 12px;">{!att.Name}</a>
+            </apex:repeat>
+          </apex:outputPanel>
+					
+          <div class="case">
+          	<p>{!currentCase.Description}</p>
+          </div>
+          <div class="case">
+          	<a href="{!$Page.R_Cases}" class="big-link">Back to My Cases</a>
+          </div>
+          
+          <div class="comments" style="display:block;">
+          	<apex:repeat value="{!currentCaseComments}" var="currentCaseComment">
+		          <div class="comment">
+		              <div class="image columns" style="background: none;">
+		                  <img src="{!avatarUrl}"/>
+		              </div>
+		              <div class="summary">
+		                  <p>{!currentCaseComment.CommentBody}</p>
+		                  <div class="info">
+		                      Posted By : <a href="javascript:;" class="link">{!currentCaseComment.LastModifiedBy.name}</a>
+		                      &nbsp;|&nbsp;
+													<apex:outputText value="{0,date, MM'/'dd'/'yy}">
+	                          <apex:param value="{!currentCaseComment.LastModifiedDate}" /> 
+	                      	</apex:outputText>
+		                  </div>
+		              </div>
+		          </div>
+	          </apex:repeat>
+	        </div>
+	        
+	        <apex:outputPanel rendered="{! if( currentCase.Status != 'Closed', 'true','false' )}">
+		        <h3>Add Comment</h3>
+		        <div class="write-comment">
+		        	<div class="image columns" style="background: none;">
+		               <img src="{!avatarUrl}"/>
+		          </div>
+		          <apex:inputTextarea id="newCommentText" value="{!newCommentText}" rows="4"/><br/>
+		          <div class="buttons">
+		         		<a href="javascript:;" onClick="addNewComment();" class="button">Add Comment</a>
+		        	</div>
+	          </div>
+          </apex:outputPanel>
+                    
+				</apex:pageBlock>
+      	
+      	<apex:pageBlock rendered="{! IF( currentCase.Id != null , 'false', 'true' )}">
+	      	<h2>
+	      		<span class="title">
+	            Welcome to Diageo Direct Support
+	          </span>
+	          <span class="right">
+	          	E-mail: <span>diageodirect@diageo.com</span><br />
+	            Phone: <span>{!$Label.Support_Number}</span>
+	          </span>
+	        </h2>
+	
+					<div class="button-line two-btns">
+	        	<a href="#" onclick="showDialog('ajaxLoader'); window.location = '{!$Page.R_Cases}?caseType=new'; return false;" class="{!IF(AND(currentCase.Id == null, NOT(isCaseAdded), NOT(showMyCase)), 'active','')}">Submit New Case</a>
+	          <a href="#" onClick="showMyCases();" class="{!IF(AND(showMyCase, isCasesExist, OR(currentCaseId != null, isChangeView, isCaseAdded)),'active','')} last">My Cases</a>
+	        </div>
+					<apex:outputPanel rendered="{!AND(showMyCase, isCasesExist, OR(currentCaseId != null, isChangeView, isCaseAdded))}">
+						<div class="form">
+	 						<div class="form-line case-status-line">
+	            	<label>Select Case Status</label>
+	              <c:R_selectList width="48" options="{!CaseStatusList}" value="{!displayWithStatus}" onchange="changeViewStatus();" />
+	              <div class="clear"></div>
+	            </div>
+	          </div>
+						
+						<apex:repeat value="{!cases}" var="case">
+							<div class="case">
+		            <a href="{!actionUrl}?id={!case.Id}" class="big-link">{!case.Subject}</a>
+		            <apex:outputText styleClass="date" value="{0,date, MM'/'dd'/'yy}">
+	              	<apex:param value="{!case.LastModifiedDate}" /> 
+								</apex:outputText>
+		           	<div class="clear"></div>
+		          </div>
+						</apex:repeat>
+					</apex:outputPanel>
+					
+					<apex:outputPanel rendered="{!isCaseAdded}">
+						<div style="font-size: 14px; padding: 10px; text-align: left;">
+	          	{!$Label.Case_Submit}
+	          </div>
+					</apex:outputPanel>
+					
+					<apex:outputPanel rendered="{! IF( AND(currentCase.Id == null, NOT(isCaseAdded), NOT(showMyCase)), 'true', 'false' )}">
+	        <div class="form">
+	        	<h4>Contact Information <span style="font-size: 100%;">(optional)</span></h4>
+	          <p>To help us serve you better, please complete all fields below with specific details:</p>
+	          <div class="form-line">
+	          	<label>Email</label>
+	            <apex:inputText styleClass="text noTransform" id="newCaseEmail" value="{!newCaseEmail}"/><br/>
+	            <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	          	<label>Phone number</label>
+	            <apex:inputText styleClass="text noTransform" id="newCasePhone" value="{!newCasePhone}"/><br/>
+	            <div class="clear"></div>
+	          </div>
+	          <br/><br/>
+	        	<h4>Case Information</h4>
+						<!-- <p>To help us serve you better, please complete all fields below with specific details:</p> -->
+	          <div class="form-line">
+	          	<label>Support Type<span class="required">*</span></label>
+	            <c:R_selectList options="{!CaseTypeList}" value="{!newCaseType}"/>
+	            <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	          	<label>Status</label>
+	            <span style="font-weight: bold;">{!statusCaseNew}</span>
+	            <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	              <label>Application<span class="required">*</span></label>
+	              <c:R_selectList width="50" trim="false" options="{!ApplicationList}" value="{!newApplication}"/>
+	              <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	              <label>Title<span class="required">*</span></label>
+	              <apex:inputText styleClass="text noTransform" id="newCaseTitleText" value="{!newCaseTitleText}"/><br/>
+	              <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	              <label>Classification<span class="required">*</span></label>
+	              <c:R_selectList width="50" trim="false" options="{!classificationList}" value="{!newClassification}"/>
+	              <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	              <label>Description<span class="required">*</span></label>
+	              <apex:inputTextarea id="newCaseText" value="{!newCaseText}" rows="4"/><br/>
+	              <div class="clear"></div>
+	          </div>
+	          <div class="form-line">
+	              <label>Attachment</label>
+	              <!-- <input type="text" class="text noTransform"/>
+	              <a href="javascript:;" class="button upload-btn">Select File</a>
+	              <input type="file" class="file"/> -->
+	              <apex:inputFile value="{!attachment.body}" filename="{!attachment.name}" id="File"/>
+	              <div class="clear"></div>
+	          </div>
+	        </div>
+	
+	        <div class="buttons">
+	        	<!-- <a href="#" class="button submit-case-btn" onClick="addNewCaseJS();">
+	          	<span>Submit New Case</span>
+	          </a> -->
+	          <apex:commandButton styleClass="button submit-case-btn" action="{!addNewCase}" value="Submit New Case"/>
+	       	</div>
+				</apex:outputPanel>
+			</apex:pageBlock>
+			</apex:form>
+			<style>
+				.submit-case-btn{
+					background: url(../i/right-arrow.png) left center no-repeat;
+				}
+				
+				.errorMessagesList{
+				  padding:	10px;
+					margin:     0px;
+				 	text-align: 	left;
+					font-weight: 	bold;
+					color: 			#dd0000;
+					list-style-type: none;
+					font-size: 		12px;
+				}
+			</style>
+			<script>
+				function changeCaseView(){
+	        if(jQuery('.submit-case-btn').length != 0){
+	        	//showDialog('confirm', true);
+	        } else{
+	            changeViewStatus();
+	        }
+		    }
+				
+				$(".write-comment a.button").click(function() {
+            var w = $(".write-comment");
+            var h = w.prev();
+            w.hide();
+            h.hide();
+            $(".comments").show();
+        });
+		    
+		    $(".form-line").jqTransform();
+		
+		    $("input.file").change(function() {
+            var file = $(this);
+            var val = file.val();
+            file.closest(".form-line").find("input.text").val(val);
+        });
+			</script>
+    </div>
+  </div>
+  <!-- end of content -->
+  <c:R_pageFooter isInternal="{!isInternalUser }" />
+	</div>
+</body>
+</apex:page>

@@ -1,0 +1,155 @@
+<!-----------------------------------------------------------------------------------------------------------------
+Name        : NAEmailComponent
+
+Created By  : Siddharth varshneya (Appirio JDC)   
+Date        : 11/08/13
+Story/Task  : US728/TA1294
+------------------------------------------------------------------------------------------------------------------->
+<apex:component controller="NAEmailComponentController" access="global" allowDML="true">
+        <apex:attribute name="CalenderID" description="" type="String" assignTo="{!Cid}" />
+        <apex:attribute name="ConID" description="" type="String" assignTo="{!contactId}" />
+<html dir="ltr" lang="en-US">
+<head>
+<title>Diageo Mailer</title>
+</head>
+<body>
+
+<div style="width:600px;margin:0 auto;font:normal normal 13px/1em Helvetica, Arial;color:#565656;-webkit-font-smoothing:antialiased;font-smoothing:antialiased">
+
+
+    <div class="spacer" height="20px">&nbsp;</div>
+    <div class="header" style="background:#C90050;color:#ffffff;padding:20px;width:560px;font-size:19px;font-weight:700">{!cal.Name}</div>
+    
+    <div class="spacer" height="10px">&nbsp;</div>
+    <div style="width: auto !important; {!styleBackgroundColor}{!styleTextColor}">
+    <table style="padding:0;border:0;width:600px;height:158px;margin:0 auto;border-collapse:collapse;" >
+            <tr>
+                <td align="left" width="200">
+                   <img src="{!$Label.SiteUrl}/servlet/servlet.ImageServer?id={!cal.Marketing_Group__r.calendar_small_logo__r.Document_Id__c}&oid={!oId}" alt="Base64 encoded image" />
+                </td>
+                <td align="left" width="275">
+                <div style="{!styleTextColor}">
+                <span >{!cal.Call_to_Action__c}</span>
+                </div>
+                </td>   
+            </tr>       
+            <tr>    
+                <td align="left" width="200">
+                </td>
+                <td align="left" width="275">
+                <div style="{!styleTextColor}">
+                <span>{!brandName}</span>
+                </div>
+                    <!--<FONT COLOR="{!textColor}"></FONT>-->
+                </td>
+            </tr>
+    </table>
+     </div>
+    <!--<img style="width:600px;height:158px" src="{!URLFOR($Resource.red_robinlogo)}" alt="Red Robin Gormet Burgers - Lorem ipsum dolor sit amet" />-->
+
+    <table style="padding:0;border:0;width:600px;border-bottom:1px dotted #dddddd;border-collapse:collapse">
+        <tr>
+            <td align="left" style="width:40%;vertical-align:top;padding:15px 20px">Local Action Required:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!cal.local_action_required_text__c}</b></td>
+        </tr>
+        <tr style="background:#E7ECEE">
+            <td align="left" style="vertical-align:top;padding:15px 20px">List of Activity Types:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!activityTypes}</b></td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top;padding:15px 20px">Volume Opportunity:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!cal.volume_opportunity__c}</b></td>
+        </tr>
+        <tr style="background:#E7ECEE">
+            <td align="left" style="vertical-align:top;padding:15px 20px">Suggested Case minimum:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!cal.suggested_case_minimum__c}</b></td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top;padding:15px 20px">List of States:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!states}</b></td>
+        </tr>
+        <tr style="background:#E7ECEE">
+            <td align="left" style="vertical-align:top;padding:15px 20px">Start Date:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px">
+            <b><apex:outputText value="{0,date,MM'/'dd'/'yy}">
+                <apex:param value="{!cal.Start_Date__c}" /> 
+            </apex:outputText>
+            </b></td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top;padding:15px 20px">End Date:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b><apex:outputText value="{0,date,MM'/'dd'/'yy}">
+                <apex:param value="{!cal.End_Date__c}" /> 
+            </apex:outputText>
+            </b></td>
+        </tr>
+        <tr style="background:#E7ECEE">
+            <td align="left" style="vertical-align:top;padding:15px 20px">NAM/KAM Name:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px"><b>{!createdBy}</b></td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top;padding:15px 20px;vertical-align:top">Description:</td>
+            <td align="left" style="vertical-align:top;padding:15px 20px;vertical-align:top">
+                <p style="margin:0 0 2em;padding:0;line-height:1.5em">{!cal.description__c}</p>
+                <a style="margin-top:1em;text-decoration:none;color:#C90050;font-weight:700" href="{!$Label.SiteUrlPrefix}/ProgramMaterial?Id={!Cid}">Link to Program materials</a>
+            </td>
+        </tr>
+    </table>
+    <div class="spacer" height="20px">&nbsp;</div>
+    
+    <div class="spacer" height="20px">&nbsp;</div>
+    <div style="width:560px;background:#E7ECEE;border:1px solid #dddddd;padding:20px">
+        <table style="padding:0;border:0;width:600px;border-collapse:collapse">
+            <tr>
+                <td align="left" style="width:250px">
+                    <span style="font-size:17px;font-weight:400;display:block;text-align:center;line-height:1.1em">Please forward this email to colleagues within your organization who <br />require access to National Account program communications.  They can Subscribe by clicking the button below</span>
+                    <!--<span style="font-size:19px;font-weight:700;display:block;text-align:right;line-height:1.5em;color:#000000">Click here!</span>-->
+               <!-- </td>
+                <td style="padding-left:25px">-->
+                    <!--<a href="#" target="_blank" style="border:0"><img style="border:0" alt="Forward To Colleague" src="{!URLFOR($Resource.forward_to_colleague)}" width="284" height="62"/></a>-->
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="spacer" height="20px">&nbsp;</div>
+    
+    <div class="spacer" height="20px">&nbsp;</div>
+    <div style="padding:1em;border-bottom:1px dotted #dddddd">
+        <table style="padding:0;border:0;width:450px;margin:0 auto;border-collapse:collapse">
+            <tr>
+                <td align="right" width="225">
+                    <a href="{!encryptedUrl}" target="_blank" style="border:0"><img style="border:0" alt="Unsubscribe" src="{!$Label.SiteUrl}/servlet/servlet.ImageServer?id={!unsubscribeDocId}&oid={!oId}" width="223" height="91" /></a>
+                </td>
+                <td align="left" width="225">
+                    <a href="{!$Label.SiteUrlPrefix}/apex/signup" target="_blank" style="border:0"><img style="border:0" alt="Subscribe" src="{!$Label.SiteUrl}/servlet/servlet.ImageServer?id={!subscribeDocId}&oid={!oId}" width="223" height="91" /></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="spacer" height="20px">&nbsp;</div>
+
+    <div class="spacer" height="20px">&nbsp;</div>
+    <div style="line-height:1.5em">Do not reply to this system-generated e-mail. This e-mail address is not monitored. If you have questions about the program, please contact the National/Key Account Manager listed on the attached file. If you are receiving this e-mail in error, please e-mail the site administrator at <a style="color:#0F7FB5" href="mailto:nac.admin@diageo.com">nac.admin@diageo.com</a> or Click Unsubscribe.</div>
+    <div class="spacer" height="20px">&nbsp;</div>
+
+    <div class="spacer" height="20px">&nbsp;</div>
+    <div class="logo" style="width:600px;height:70px;background:#f1f1f1;border:1px solid #dddddd;text-align:center">
+        <a href="#" target="_blank" style="display:block;margin-top:20px;border:0"><apex:image style="border:0" alt="Diageo Direct Logo" url="{!$Label.SiteUrl}/servlet/servlet.ImageServer?id={!diageoLogoDocId}&oid={!oId}" width="245" height="28" /></a>
+    </div>
+    <div class="spacer" height="20px">&nbsp;</div>
+
+    <div style="width:560px;">
+        <table style="padding:0;border:0;width:350px;border-collapse:collapse;margin:0 auto">
+            <tr>
+                <td style="padding:10px;text-align:center">&copy; Diageo 2013 </td>
+                <td style="padding:10px;text-align:center"><a href="{!$Label.SiteUrlPrefix}/apex/Terms" target="_blank" style="color:#565656;text-decoration:none" title="Terms and Conditions">Terms &amp; Conditions</a></td>
+                <td style="padding:10px;text-align:center"><a href="{!$Label.SiteUrlPrefix}/apex/Privacy" target="_blank" style="color:#565656;text-decoration:none" title="Privacy">Privacy</a></td>
+            </tr>
+        </table>
+    </div>
+    <div class="spacer" height="20px">&nbsp;</div>
+
+</div><!--/.wrapper -->
+</body>
+</html>
+</apex:component>

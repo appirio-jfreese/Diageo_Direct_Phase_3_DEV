@@ -1,0 +1,82 @@
+<apex:component controller="ViewAllCampaignMembers">
+    <apex:attribute name="campaignId" description="This is the campaign Id for displaying Campaign Members"
+    	type="String" required="true" assignTo="{!campId}"/>
+    <apex:attribute name="isFirst" description="" type="String" required="true" assignTo="{!firstLoad}"/>
+<!--	  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>-->
+	  <script src="{!URLFOR($Resource.jquery_vfFloatingHeaders)}"></script>   
+	  <script>
+	    $(document).ready(function() {
+	        $('.floatingHeaderTable').vfFloatingHeaders();
+	    });  
+	    </script> 
+	
+	<style type="text/css" media="screen">
+	         body {background-color:#F3F3EC;}
+	        .bPageBlock {border-top:0; padding-bottom:0;}
+	        .bPageBlock .pbBody {margin-right:0; padding:0;}
+	        .bPageBlock .pbFooter {display:none;}
+	         .tableContainer
+	        {
+	            height:150px; 
+	            width: 100%;
+	            overflow: auto;
+	        }       
+	        .floatingStyle 
+	        { 
+	            position:relative; 
+	        }
+	           
+	</style>
+	
+	<apex:pageBlock title="Campaign Members">
+	   <apex:pageBlockButtons location="top">
+	    <apex:commandButton value="Add Campaign Member" onclick="openChildWindow();return false;"/>
+	  </apex:pageBlockButtons>
+	
+	  <apex:outputPanel styleClass="tableContainer" layout="block">
+	  	<apex:PageBlockTable value="{!campMembers}" var="campMember" width="100%" rules="rows" styleClass="floatingHeaderTable">
+	    	<apex:column style="text-align: left;" headerValue="Member Type">
+	      	<a href="/{!IF(ISNULL(campMember.ContactId), campMember.LeadId, campMember.ContactId)}" target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), 'Lead', 'Contact')}"/></a>
+	      </apex:column>
+	         
+	      <apex:column style="text-align: left;" headerValue="First Name">
+	      	<a href="/{!campMember.Id}"  target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), campMember.Lead.FirstName, campMember.Contact.FirstName)}"/></a>
+	      </apex:column>
+	         
+	      <apex:column style="text-align: left;" headerValue="Last Name">
+	      	<a href="/{!campMember.Id}"  target="_blank"><apex:outputText value="{!IF(ISNULL(campMember.ContactId), campMember.Lead.LastName, campMember.Contact.LastName)}"/></a>
+	      </apex:column>
+	         
+	      <apex:column headerValue="Title">
+	      	<apex:outputfield value="{!campMember.Contact.Title}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+	        <apex:outputfield value="{!campMember.Lead.Title}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column>
+	
+	      <apex:column headerValue="Phone">
+	      	<apex:outputfield value="{!campMember.Contact.Phone}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+	        <apex:outputfield value="{!campMember.Lead.Phone}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column>
+	         
+	      <apex:column headerValue="Mobile Phone">
+	      	<apex:outputfield value="{!campMember.Contact.MobilePhone}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+	      	<apex:outputfield value="{!campMember.Lead.MobilePhone}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column>
+	
+	      <apex:column headerValue="Email">
+	      	<apex:outputfield value="{!campMember.Contact.Email}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+	        <apex:outputfield value="{!campMember.Lead.Email}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column>
+	
+	      <apex:column headerValue="Lead/Contact Owner">
+	      	<apex:outputfield value="{!campMember.Contact.Owner.Name}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+	        <apex:outputfield value="{!campMember.Lead.Owner.Name}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column> 
+	         
+	      <apex:column headerValue="Processed">
+	      	<apex:outputfield value="{!campMember.Processed__c}" rendered="{!NOT(ISNULL(campMember.ContactId))}"/>
+					<apex:outputfield value="{!campMember.Processed__c}" rendered="{!ISNULL(campMember.ContactId)}"/>
+	      </apex:column>
+	  	</apex:PageBlockTable>
+		</apex:outputPanel>
+	</apex:pageBlock>	
+</apex:component>

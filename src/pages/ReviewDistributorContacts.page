@@ -1,0 +1,128 @@
+<apex:page StandardController="Contact" recordSetVar="Contacts" title="Review Distributors" extensions="ReviewDistributorContactsController">
+<script>
+        function checkAll(cb)
+        {
+            var inputElem = document.getElementsByTagName("input");
+            for(var i=0; i<inputElem.length; i++)
+            {
+                if(inputElem[i].id.indexOf("checkedone")!=-1)
+                inputElem[i].checked = cb.checked;
+            }
+            updateSelectList();
+        }
+        
+        function uncheckAll(){
+          var inputElem = document.getElementsByTagName("input");
+          var flag = true; 
+          var checkAll; 
+            for(var i=0; i<inputElem.length; i++)
+            {
+            if(inputElem[i].id.indexOf("checkAllDone") != -1){
+              checkAll = inputElem[i];
+             }
+                if(inputElem[i].id.indexOf("checkedone") != -1 && !inputElem[i].checked){
+                  flag = false;
+                  break; 
+                }                
+            }
+            checkAll.checked = flag;
+            updateSelectList();
+        }
+    </script>
+
+  <apex:form id="frm">
+    <c:WaitingComponent />
+    <apex:pageMessages />    
+    <apex:actionFunction oncomplete="lockScreen(false);" name="updateSelectList" action="{!populateSelected}" reRender="pBlock"/>
+    <apex:actionFunction action="{!doSort}" name="sortRecords" rerender="pBlock" oncomplete="lockScreen(false);">
+      <apex:param name="sortField" assignTo="{!sortField}" value="" />    
+    </apex:actionFunction>
+    <apex:actionFunction oncomplete="lockScreen(false);" name="approve" action="{!approveRequest}" reRender="frm">
+      <apex:param name="firstParam" value="" assignTo="{!selectedContactId}"/>
+    </apex:actionFunction>
+    <apex:actionFunction oncomplete="lockScreen(false);" name="reject" action="{!rejectRequest}" reRender="frm">
+      <apex:param name="secParam" value="" assignTo="{!selectedContactId}"/>
+    </apex:actionFunction>
+     
+    <apex:pageBlock id="pBlock" title="New Subscribe Requests">
+      <apex:outputPanel rendered="{!(lstContacts.size == 0)}">
+        No records available.
+      </apex:outputPanel>
+      
+      <apex:pageBlockButtons location="top">
+        <apex:commandButton value="Approve Selected Contacts" action="{!approveSelected}" onclick="lockScreen(true);" oncomplete="lockScreen(false);" reRender="frm" rendered="{!(lstContacts.size != 0)}"/>
+        <apex:commandButton value="Reject Selected Contacts" action="{!rejectSelected}" onclick="lockScreen(true);" oncomplete="lockScreen(false);" reRender="frm" rendered="{!(lstContacts.size != 0)}"/>
+        <apex:commandButton value="Go Back" action="{!cancel}" onclick="lockScreen(true);" oncomplete="lockScreen(false);"/>
+      </apex:pageBlockButtons>
+      
+      <apex:pageBlockTable value="{!lstContacts}" var="con" rendered="{!(lstContacts.size != 0)}">        
+        <apex:column >
+          <apex:facet name="header"> 
+            <apex:inputCheckbox id="checkAllDone" onClick="checkAll(this);lockScreen(true);"/>            
+          </apex:facet>
+          <apex:inputCheckbox value="{!con.isSelected}" id="checkedone" onclick="uncheckAll();lockScreen(true);" rendered="{!(con.processInstance.CreatedDate != null)}"/>
+        </apex:column>
+        
+        <!-- Mark M. reviewed with Nicole. Determined these buttons were not needed. <apex:column headerValue="Action">
+          <apex:commandButton value="Approve" onclick="approve('{!con.Contact.Id}');" reRender="frm" rendered="{!(con.processInstance.CreatedDate != null)}"/>&nbsp;&nbsp;
+          <apex:commandButton value="Reject" onclick="reject('{!con.Contact.Id}');" reRender="frm" rendered="{!(con.processInstance.CreatedDate != null)}"/>
+        </apex:column> -->
+        <apex:column >
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Name');lockScreen(true);">
+              Contact Name
+              <img src="{!IF(sortField = 'Name', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet> 
+          <apex:outputLink value="/{!con.contact.Id}"> {!con.contact.Name}</apex:outputLink>
+        </apex:column>
+        <apex:column value="{!con.contact.Title}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Title');lockScreen(true);">
+              Title
+              <img src="{!IF(sortField = 'Title', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_Name__c}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_Name__c');lockScreen(true);">
+              Distributor Name
+              <img src="{!IF(sortField = 'Distributor_Name__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_State__c}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_State__c');lockScreen(true);">
+              Distributor State
+              <img src="{!IF(sortField = 'Distributor_State__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>       
+        <apex:column headerValue="{!$Label.SignUpPage_CommPrefState}" value="{!con.contact.Select_Managed_States__c}"/>
+        <apex:column value="{!con.contact.Email}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Email');lockScreen(true);">
+              Email
+              <img src="{!IF(sortField = 'Email', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column headerValue="Interested In" value="{!con.contact.Subscribe_Interested_In__c}"/>
+        <apex:column headerValue="On/Off Premise" value="{!con.contact.Subscribe_Premise__c}"/>
+        <apex:column >
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Date_Submitted');lockScreen(true);">
+              Date Submitted
+              <img src="{!IF(sortField = 'Date_Submitted', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+          <apex:outputField value="{!con.processInstance.CreatedDate}" rendered="{!(con.processInstance.CreatedDate != null)}"/>
+          <apex:outputText value="Not Submitted" rendered="{!(con.processInstance.CreatedDate = null)}"/> 
+        </apex:column>
+         
+      </apex:pageBlockTable>      
+    </apex:pageBlock>
+  </apex:form>
+</apex:page>

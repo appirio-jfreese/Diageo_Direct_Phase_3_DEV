@@ -1,0 +1,331 @@
+<apex:page showheader="false" standardStylesheets="false" sidebar="false" 
+    title="Diageo : National Account Communications" controller="NACommunications">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>
+     
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery-ui-1.8.15.custom.min.js')}"></script> 
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.jscrollpane.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'imgscale.js')}"></script>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'utils.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.mousewheel.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.treeview.js')}"></script>  
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.autosize.js')}"></script>
+    <apex:stylesheet value="{!URLFOR($Resource.jquery, 'jquery.jscrollpane.css')}"/>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'autosuggest.js')}"></script>
+
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.jqtransform.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.flexslider-min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/script.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.RF_JQueries, 'js/mod_script.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.RF_JQueries, 'js/PageHeaderJQ.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.Responsive_Base, 'js/jquery.modal.min.js')}"></script>
+    
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/base.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/skeleton-fluid.css')}" /> 
+    <apex:stylesheet value="{!URLFOR($Resource.Responsive_Base, 'css/layout.css')}" />    
+
+    <apex:stylesheet value="{!URLFOR($Resource.DistributorContactSignUp, 'style.css')}"/>
+    
+  <style type="text/css">
+    body, html{
+        overflow: auto;
+    }
+    
+    .multiSelectPicklistRow {
+        vertical-align: top;
+    }
+    
+    .multiSelectPicklistCell {
+        vertical-align: middle;
+    }
+    
+    select {
+        width: 120px;
+    }
+    
+    .contDivisionSelect {
+        width: 245px;
+    }
+    </style>
+        <div class="wrapper">
+    <div class="container">
+        <div class="header">
+            <div id="logo_buttons_search" class="row clearfix" style="padding-top: 75px;">
+                <a href="{!$Page.R_HomePage}" class="logo">
+                    <img src="{!URLFOR($Resource.Responsive_Base, 'i/logo.png')}"/>
+                </a>        
+            </div>
+        </div>
+        <div class="content bggradient">
+            <div class="content-wrapper-center left">
+                <div class="errorMsg" style="{!IF(isSuccess, 'padding:20%;color:BLACK;', '')}">
+                    <apex:pageMessages />
+                </div>
+                
+            <apex:outputText rendered="{!!isSuccess}">
+              <apex:pageBlock id="updateContact" >
+                    <div class="cases-title">{!$Label.NACPageTitle}</div>
+                    <apex:form styleClass="updateContactSubscription">
+                        <div class="form-header"><span class="bold">Contact Information</span></div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_FirstName} <span class="required">*</span>
+                                <div class="input-holder">
+                                    <apex:inputField id="contNameF" value="{!distribuorConDummy.FirstName}" required="true"/><br/>
+                                </div>
+                            </div>
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_LastName} <span class="required">*</span>
+                                <div class="input-holder">
+                                    <apex:inputField id="contNameL" value="{!distribuorConDummy.LastName}" required="true"/><br/>
+                                </div>
+                            </div>
+                            <div class="clear-float"></div>
+                        </div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_Title} <span class="required">*</span>
+                                <div class="input-holder">
+                                    <apex:inputField id="contTitle" value="{!distribuorConDummy.Title}" required="true"/><br/>
+                                </div>
+                            </div>
+                            <div class="float-left form-section">
+                                    {!$Label.SignUpPage_Email} <span class="required">*</span>
+                                    <div class="input-holder">
+                                        <apex:inputField id="contEmail" value="{!distribuorConDummy.Email}" required="true"/><br/>
+                                    </div>
+                                </div>
+                            <div class="clear-float"></div>
+                        </div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">   
+                                {!$Label.SignUpPage_Phone} <span class="required">*</span>
+                                <div class="input-holder">
+                                <apex:inputField id="contPhone" value="{!distribuorConDummy.Phone}" onBlur="javascript:format_phone(this, event)"
+                                onFocus="if(this.value==this.defaultValue)this.value='';" onkeydown="javascript:format_phone(this, event)" required="true"/><br/>
+                            </div>
+                        </div>
+                        <div class="float-left form-section">
+                            {!$Label.NAC_Division}
+                            <div class="input-holder">
+                                <apex:inputField id="contDivision" value="{!distribuorConDummy.Division__c}" styleClass="contDivisionSelect " /><br/>
+                            </div>
+                        </div>
+                        <div class="clear-float"></div>
+                    </div>
+                    <div class="left new-case-label">  
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.NAC_State} <span class="required">*</span>
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">  
+                                    <apex:inputField id="contAddState" value="{!distribuorConDummy.Select_Managed_States__c}" style="width:100%;" required="true"/><br/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear-float"></div>
+                    </div>
+                    <div class="left new-case-label">  
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.SignUpPage_BeverageCategory} <span class="required">*</span>
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">  
+                                    <apex:inputField id="SubscribeInterestedIn" value="{!distribuorConDummy.Subscribe_Interested_In__c}" required="true"/><br/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.SignUpPage_On_OffPremise} <span class="required">*</span>
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">
+                                    <apex:inputField id="SubscribePremise" value="{!distribuorConDummy.Subscribe_Premise__c}" required="true"/><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear-float"></div>
+                    <br/>
+                    <div class="case-buttons"> 
+                        <apex:commandButton styleClass="green addNewContSubmitButton" action="{!save}" value="Save" onclick="showDialog('ajaxLoader');"/>
+                    </div>
+                    <div class="left new-case-label">{!$Label.unsubscribe_Text}</div>
+                    <div class="clear-float"></div>
+                    <div class="case-buttons"> 
+                        <apex:commandButton styleClass="green addNewContSubmitButton" action="{!unSubscribe}" value="UnSubscribe" onclick="showDialog('ajaxLoader');"/>           
+                    </div>
+                </apex:form>
+                
+                <!-- <apex:form styleClass="updateContactSubscription">
+                        <div class="form-header"><span class="bold">Contact Information</span></div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_FirstName} 
+                                <div class="input-holder">
+                                    <apex:inputField id="contNameF_copy" value="{!distribuorConDummy.First_Name_copy__c}" /><br/>
+                                </div>
+                            </div>
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_LastName} 
+                                <div class="input-holder">
+                                    <apex:inputField id="contNameL_copy" value="{!distribuorConDummy.Last_Name_copy__c}" /><br/>
+                                </div>
+                            </div>
+                            <div class="clear-float"></div>
+                        </div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">
+                                {!$Label.SignUpPage_Title}
+                                <div class="input-holder">
+                                    <apex:inputField id="copy_contTitle" value="{!distribuorConDummy.Title_copy__c}" /><br/>
+                                </div>
+                            </div>
+                            <div class="float-left form-section">
+                                    {!$Label.SignUpPage_Email}
+                                    <div class="input-holder">
+                                        <apex:inputField id="copy_contEmail" value="{!distribuorConDummy.Email_copy__c}" /><br/>
+                                    </div>
+                                </div>
+                            <div class="clear-float"></div>
+                        </div>
+                        <div class="left new-case-label">
+                            <div class="float-left form-section">  
+                                {!$Label.SignUpPage_Phone}
+                                <div class="input-holder">
+                                <apex:inputField id="copy_contPhone" value="{!distribuorConDummy.Phone_copy__c}" onBlur="javascript:format_phone(this, event)"
+                                onFocus="if(this.value==this.defaultValue)this.value='';" onkeydown="javascript:format_phone(this, event)"/><br/>
+                            </div>
+                        </div>
+                        <div class="float-left form-section">
+                            {!$Label.NAC_Division}
+                            <div class="input-holder">
+                                <apex:inputField id="copy_contDivision" value="{!distribuorConDummy.Division_Copy__c}" /><br/>
+                            </div>
+                        </div>
+                        <div class="clear-float"></div>
+                    </div>
+                    <div class="left new-case-label">  
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.NAC_State}
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">  
+                                    <apex:inputField id="copy_contAddState" value="{!distribuorConDummy.Internal_State_Copy__c}" style="width:100%;"/><br/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear-float"></div>
+                    </div>
+                    <div class="left new-case-label">  
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.SignUpPage_BeverageCategory} 
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">  
+                                    <apex:inputField id="SubscribeInterestedIn_copy" value="{!distribuorConDummy.Subscribe_Interested_In_copy__c}" /><br/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="float-left form-section caseType" style="height: 100px; vertical-align: top;">  
+                            {!$Label.SignUpPage_On_OffPremise} 
+                            <div class="select-type-wappper">
+                                <div class="select-type-holder">
+                                    <apex:inputField id="SubscribePremise_copy" value="{!distribuorConDummy.Subscribe_Premise_copy__c}" /><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear-float"></div>
+                    <br/>
+                    <div class="case-buttons"> 
+                        <apex:commandButton styleClass="green addNewContSubmitButton" action="{!save}" value="Save" onclick="showDialog('ajaxLoader');"/>
+                    </div>
+                    <div class="left new-case-label">{!$Label.unsubscribe_Text}</div>
+                    <div class="clear-float"></div>
+                    <div class="case-buttons"> 
+                        <apex:commandButton styleClass="green addNewContSubmitButton" action="{!unSubscribe}" value="UnSubscribe" onclick="showDialog('ajaxLoader');"/>           
+                    </div>
+                </apex:form> -->               
+              </apex:pageBlock>
+            </apex:outputText>
+            <!-- END : Update/Unsubscribe Form -->
+            </div>
+        </div>  
+        <div class="login-footer">
+            <a href="">&copy; Diageo 2011</a>
+        </div>
+    </div>
+</div>
+  <script type="text/javascript">
+    /*Start of phone number formating */
+        function format_phone(m, evt){
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            if(m.value.length > 14){
+                m.value=m.value.substring(0,14);
+            }
+            if(charCode != 8 && charCode != 46){
+                var n  = m.name;
+                var p1 = m
+                var p  = p1.value;
+            
+                if(p.length==3){
+                pp=p;
+                d4=p.indexOf('(')
+                d5=p.indexOf(')')
+                if(d4==-1){
+                    pp="("+pp;
+                }
+                if(d5==-1){
+                    pp=pp+") ";
+                }
+                p1.value="";
+                p1.value=pp;
+                }
+                if(p.length>3){
+                d1=p.indexOf('(')
+                d2=p.indexOf(')')
+                if (d2==-1){
+                    l30=p.length;
+                    p30=p.substring(0,4);
+                    p30=p30+") "
+                    p31=p.substring(5,l30);
+                    pp=p30+p31;
+                    p1.value="";
+                    p1.value=pp;
+                }
+                }
+                if(p.length>7){
+                p11=p.substring(d1+1,d2);
+                if(p11.length>4){
+                    p12=p11;
+                    l12=p12.length;
+                    l15=p.length
+                    p13=p11.substring(0,4);
+                    p14=p11.substring(4,l12);
+                    p15=p.substring(d2+1,l15);
+                    p1.value="";
+                    pp="("+p13+") "+p14+p15;
+                    p1.value=pp;
+                }
+                l16=p.length;
+                p16=p.substring(d2+2,l16);
+                l17=p16.length;
+                if(l17>3&&p16.indexOf('-')==-1){
+                    p17=p.substring(d2+1,d2+5);
+                    p18=p.substring(d2+5,l16);
+                    p19=p.substring(0,d2+1);
+                        pp=p19+p17+"-"+p18;
+                        p1.value="";
+                        p1.value=pp;
+                }
+                }
+            }
+        }
+        /* End of phone number formating */
+  </script>
+  <style>
+    table.multiSelectPicklistTable td select{
+        max-width: 120px;
+    }
+  </style>
+</apex:page>

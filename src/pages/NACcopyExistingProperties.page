@@ -1,0 +1,98 @@
+<apex:page sidebar="false" controller="Controller_NACcopyExistingProperties" tabstyle="Calendar__c" showHeader="false">
+    <apex:form >
+        <script>
+            function closeWin(){
+            window.opener.location.reload();
+                window.close();                                            // Closes the new window
+            }
+            function chkSubCategory(){
+                if(document.getElementById('j_id0:j_id1:pb:j_id6:j_id22:j_id23').selectedOptions[0].innerText == '--None--'){
+                    return true;
+                }
+                else{
+                return false;
+                }
+            }
+        </script>
+        <apex:pageBlock id="pb">
+            <apex:actionFunction name="setSelected" id="af" reRender="pb"/>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Copy & Close" action="{!cpCopy}" oncomplete="closeWin();"/>
+                <apex:commandButton value="Cancel" onclick="closeWin();"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Search Criteria" collapsible="false" columns="6">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Name:"></apex:outputLabel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Category:"></apex:outputLabel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Sub Category:"></apex:outputLabel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Sub Sub Category:"></apex:outputLabel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Sub Sub Sub Category:"></apex:outputLabel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputField value="{!tempCp.Name}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputField value="{!tempCp.Category__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputField value="{!tempCp.Sub_Category__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputField value="{!tempCp.Sub_Sub_Category__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:inputField value="{!tempCp.Sub_Sub_Sub_Category__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem > 
+                    <apex:commandButton value="Search" style="width:80px" onclick="if(chkSubCategory()) return true;" action="{!cpSearch}" reRender="pb"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Search Results" collapsible="false" columns="1" rendered="{!isResultShow}" >
+                <apex:pageBlockTable value="{!mapSR}" var="row">
+                    <apex:column headerValue="Select">
+                        <apex:inputCheckbox value="{!mapSR[row].selected}" onchange="setSelected();"/>
+                    </apex:column>
+                    <apex:column headerValue="Content Name">
+                        <apex:outputText value="{!mapSR[row].sourceCp.Name}"/>
+                    </apex:column>
+                    <apex:column headerValue="Source Category">
+                        <apex:outputText value="{!mapSR[row].sourceCp.Category__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Source Sub Category">
+                        <apex:outputText value="{!mapSR[row].sourceCp.Sub_Category__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Source Sub Sub Category">
+                        <apex:outputText value="{!mapSR[row].sourceCp.Sub_Sub_Category__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Source Sub Sub Sub Category">
+                        <apex:outputText value="{!mapSR[row].sourceCp.Sub_Sub_Sub_Category__c}"/>
+                    </apex:column>
+                    <apex:column headerValue="Target Calendar">
+                        <apex:outputText value="{!cal.Name}"/>
+                    </apex:column>
+                    <apex:column headerValue="Target Category" >
+                        <apex:inputField value="{!mapSR[row].targetCp.Category__c}" rendered="{!mapSR[row].selected}"/>
+                    </apex:column>
+                    <apex:column headerValue="Target Sub Category" >
+                        <apex:inputField value="{!mapSR[row].targetCp.Sub_Category__c}" rendered="{!mapSR[row].selected}"/>
+                    </apex:column>
+                    <apex:column headerValue="Target Sub Sub Category" >
+                        <apex:inputField value="{!mapSR[row].targetCp.Sub_Sub_Category__c}" rendered="{!mapSR[row].selected}"/>
+                    </apex:column>
+                    <apex:column headerValue="Target Sub Sub Sub Category" >
+                        <apex:inputField value="{!mapSR[row].targetCp.Sub_Sub_Sub_Category__c}" rendered="{!mapSR[row].selected}"/>
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

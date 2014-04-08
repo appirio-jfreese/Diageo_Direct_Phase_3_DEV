@@ -1,0 +1,154 @@
+<apex:page StandardController="Contact" recordSetVar="Contacts" title="Distributor Contact Quarterly Update Submissions" extensions="ReviewDistributorChangeRqstCtrl">
+<script>
+        function checkAll(cb)
+        {
+            var inputElem = document.getElementsByTagName("input");
+            for(var i=0; i<inputElem.length; i++)
+            {
+                if(inputElem[i].id.indexOf("checkedone")!=-1)
+                inputElem[i].checked = cb.checked;
+            }
+            updateSelectList();
+        }
+        
+        function uncheckAll(){
+          var inputElem = document.getElementsByTagName("input");
+          var flag = true; 
+          var checkAll; 
+            for(var i=0; i<inputElem.length; i++)
+            {
+            if(inputElem[i].id.indexOf("checkAllDone") != -1){
+              checkAll = inputElem[i];
+             }
+                if(inputElem[i].id.indexOf("checkedone") != -1 && !inputElem[i].checked){
+                  flag = false;
+                  break; 
+                }                
+            }
+            checkAll.checked = flag;
+            updateSelectList();
+        }
+    </script>
+
+  <apex:form id="frm">
+    <c:WaitingComponent />
+    <apex:pageMessages />    
+    <apex:actionFunction oncomplete="lockScreen(false);" name="updateSelectList" action="{!populateSelected}" reRender="pBlock"/>
+    <apex:actionFunction action="{!doSort}" name="sortRecords" rerender="pBlock" oncomplete="lockScreen(false);">
+      <apex:param name="sortField" assignTo="{!sortField}" value="" />    
+    </apex:actionFunction>
+    <apex:actionFunction oncomplete="lockScreen(false);" name="approve" action="{!approveRequest}" reRender="frm">
+      <apex:param name="firstParam" value="" assignTo="{!selectedContactId}"/>
+    </apex:actionFunction>
+    <apex:actionFunction oncomplete="lockScreen(false);" name="reject" action="{!rejectRequest}" reRender="frm">
+      <apex:param name="secParam" value="" assignTo="{!selectedContactId}"/>
+    </apex:actionFunction>
+     
+    <apex:pageBlock id="pBlock" title="Quarterly Update Requests">
+      <apex:outputPanel rendered="{!(lstContacts.size == 0)}">
+        No records available.
+      </apex:outputPanel>
+      
+      <apex:pageBlockButtons location="top">
+        <apex:commandButton value="Approve Selected Contacts" onclick="lockScreen(true);" oncomplete="lockScreen(false);" action="{!approveSelected}" reRender="frm" rendered="{!(lstContacts.size != 0)}"/>
+        <apex:commandButton value="Reject Selected Contacts" onclick="lockScreen(true);" oncomplete="lockScreen(false);" action="{!rejectSelected}" reRender="frm" rendered="{!(lstContacts.size != 0)}"/>
+        <apex:commandButton value="Go Back" action="{!cancel}" onclick="lockScreen(true);" oncomplete="lockScreen(false);"/>
+      </apex:pageBlockButtons>
+      
+      <apex:pageBlockTable value="{!lstContacts}" var="con" rendered="{!(lstContacts.size != 0)}">        
+        <apex:column >
+          <apex:facet name="header"> 
+            <apex:inputCheckbox id="checkAllDone" onClick="checkAll(this);lockScreen(true);"/>            
+          </apex:facet>
+          <apex:inputCheckbox value="{!con.isSelected}" id="checkedone" onclick="uncheckAll();lockScreen(true);" rendered="{!NOT(ISBLANK(con.processInstance.CreatedDate))}"/>
+        </apex:column>
+        
+        <!-- Mark M. reviewed with Nicole.Determined these buttons were not needed.  <apex:column headerValue="Action">
+          <apex:commandButton value="Approve" onclick="approve('{!con.Contact.Id}');" reRender="frm" rendered="{!NOT(ISBLANK(con.processInstance.CreatedDate))}"/>&nbsp;&nbsp;
+          <apex:commandButton value="Reject" onclick="reject('{!con.Contact.Id}');" reRender="frm" rendered="{!NOT(ISBLANK(con.processInstance.CreatedDate))}"/>
+        </apex:column> -->
+        <apex:column >
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Name');lockScreen(true);">
+              Contact Name
+              <img src="{!IF(sortField = 'Name', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet> 
+          <apex:outputLink value="/{!con.contact.Id}" style="{!IF(OR(con.contact.FirstName != con.contact.First_Name_copy__c, con.contact.LastName != con.contact.Last_Name_copy__c), 
+                                                            'color:red;font-weight:bold;', '')}">{!con.contact.First_Name_copy__c} {!con.contact.Last_Name_copy__c}</apex:outputLink>
+        </apex:column>
+        <apex:column value="{!con.contact.Title_copy__c}" style="{!IF((con.contact.Title != con.contact.Title_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Title_copy__c');lockScreen(true);">
+              Title
+              <img src="{!IF(sortField = 'Title_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_Name_copy__c}" style="{!IF((con.contact.Distributor_Name__c != con.contact.Distributor_Name_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_Name_copy__c');lockScreen(true);">
+              Distributor Name
+              <img src="{!IF(sortField = 'Distributor_Name_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_Address_copy__c}" style="{!IF((con.contact.Distributor_Address__c != con.contact.Distributor_Address_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_Address_copy__c');lockScreen(true);">
+              Distributor Address
+              <img src="{!IF(sortField = 'Distributor_Address_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_City_copy__c}" style="{!IF((con.contact.Distributor_City__c != con.contact.Distributor_City_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_City_copy__c');lockScreen(true);">
+              Distributor City
+              <img src="{!IF(sortField = 'Distributor_City_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column value="{!con.contact.Distributor_State_copy__c}" style="{!IF((con.contact.Distributor_State__c != con.contact.Distributor_State_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Distributor_State_copy__c');lockScreen(true);">
+              Distributor State
+              <img src="{!IF(sortField = 'Distributor_State_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column headerValue="{!$Label.SignUpPage_CommPrefState}" value="{!con.contact.Select_Managed_States_Copy__c}" style="{!IF((con.contact.Select_Managed_States__c != con.contact.Select_Managed_States_Copy__c),'color:red;font-weight:bold;', '')}"/>
+        <apex:column >
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Email_copy__c');lockScreen(true);">
+              Email
+              <img src="{!IF(sortField = 'Email_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+          <apex:outputField style="{!IF((con.contact.Email != con.contact.Email_copy__c),'color:red;font-weight:bold;', '')}" value="{!con.contact.Email_copy__c}"/>
+        </apex:column>
+        <apex:column value="{!con.contact.Phone_copy__c}" style="{!IF((con.contact.Phone != con.contact.Phone_copy__c),'color:red;font-weight:bold;', '')}">
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Phone_copy__c');lockScreen(true);">
+              Phone
+              <img src="{!IF(sortField = 'Phone_copy__c', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>
+        </apex:column>
+        <apex:column headerValue="Interested In" value="{!con.contact.Subscribe_Interested_In_copy__c}" style="{!IF((con.contact.Subscribe_Interested_In__c != con.contact.Subscribe_Interested_In_copy__c),'color:red;font-weight:bold;', '')}"/>
+        <apex:column headerValue="On/Off Premise" value="{!con.contact.Subscribe_Premise_copy__c}" style="{!IF((con.contact.Subscribe_Premise__c != con.contact.Subscribe_Premise_copy__c),'color:red;font-weight:bold;', '')}"/>
+        <apex:column >
+          <apex:facet name="header">
+            <apex:outputLink value="javascript:void(0);" onclick="sortRecords('Date_Submitted');lockScreen(true);">
+              Date Submitted
+              <img src="{!IF(sortField = 'Date_Submitted', IF(isAsc = true, '/img/sort_asc_arrow.gif','/img/sort_desc_arrow.gif'),'/s.gif')}" />
+            </apex:outputLink>
+          </apex:facet>          
+          <apex:outputField value="{!con.processInstance.CreatedDate}" rendered="{!NOT(ISBLANK(con.processInstance.CreatedDate))}"/>
+          <apex:outputText value="Not Submitted" rendered="{!ISBLANK(con.processInstance.CreatedDate)}"/> 
+        </apex:column>
+         
+      </apex:pageBlockTable>      
+    </apex:pageBlock>
+  </apex:form>
+</apex:page>

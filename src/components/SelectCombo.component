@@ -1,0 +1,196 @@
+<!------------------------------------------------------------------------------
+Name 				: SelectCombo.component
+
+Created By  : Basant Verma (Appirio JDC)   
+Date        : 13th Jan, 2014
+Story/Task  : US1020
+Description : SelectCombo componnet
+------------------------------------------------------------------------------->
+<apex:component controller="SelectCombo" selfClosing="true" id="combo">
+    <apex:attribute name="SObject" description="SOQL Object to query" type="String" assignTo="{!sObjVal}" required="true"/>
+    <apex:attribute name="labelField" description="API Name of Field to display for label" type="String" required="true"/>
+    <apex:attribute name="specialField" default="" description="Special Field which will looked for *" type="String" required="false"/>
+    <apex:attribute name="valueField" description="API Name of Field to display for value that is passed to the targetField" type="String" required="true"/>
+    <apex:attribute name="targetField" assignTo="{!targetField}" description="Field of current object that will hold the selection." type="Object"/>
+    
+    <apex:attribute name="selectedVal" default="" description="Selected Value, used in Edit mode to show already selected value" type="String" required="false"/>
+    <apex:attribute name="editMode" default="true" description="mode" type="Boolean" required="false"/>
+    <apex:attribute name="customErrorMessage" default="" description="custom Error Message" type="String" required="false"/>
+    <apex:attribute name="onChangeFunction" default="" description="js function called on change" type="String" required="false"/>
+    <apex:attribute name="additionalParam" default="" description="extra SOQL" type="String" required="false"/>
+    <!--Required js files-->
+    <apex:includeScript value="{!URLFOR($Resource.SelectCombo, 'js/jquery-1.7.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SelectCombo, 'js/jquery-ui-1.8.22.custom.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SelectCombo, 'css/ui-lightness/jquery-ui-1.8.22.custom.css')}"/>
+    <!--Some styling too make the component similar to vf native components-->
+    <style>
+        .ui-button { 
+            margin-left: -3px !important; 
+            webkit-border-radius: 0px !important;
+            border-radius: 0px !important;
+             -moz-border-radius-topright: 3px !important; 
+             -webkit-border-top-right-radius: 3px !important; 
+             -khtml-border-top-right-radius: 3px !important; 
+             border-top-right-radius: 3px !important;
+             
+             -moz-border-radius-bottomright: 3px !important; 
+             -webkit-border-bottom-right-radius: 3px !important; 
+             -khtml-border-bottom-right-radius: 3px !important; 
+             border-bottom-right-radius: 3px !important;
+             font-size:.9em !important;
+        }
+        .ui-button-icon-only .ui-button-text {padding-bottom:1px;padding-top:3px;} 
+        
+    </style>
+    
+    <script>
+        /*
+        *check if jquery is loaded if not load jquery again
+        **/
+       if(typeof jQuery != 'undefined'){
+           $j =jQuery.noConflict();
+       }
+       $j(function(){
+           comboBox{!randomJsIden}();   
+                   
+        });
+
+        /*
+        *This method queries data according to the passed parameter
+        *and populates the combobox accordingly
+        ***/    
+        function queryData{!randomJsIden}(response,param){
+					Visualforce.remoting.Manager.invokeAction(
+                     '{!$RemoteAction.SelectCombo.getData}','{!sObjVal}','{!labelField}','{!valueField}','{!specialField}',param,"{!additionalParam}",
+                     function(result, event){
+                         //if success
+                         if(event.status){ 
+                            var data = [];  
+                            $j.each(result,function(){
+                                 var obj = new Object();
+                                 for (var field in this) { 
+                                     //match the passed label and returned value to populate the label and value                                  
+                                     if((field.toUpperCase()=='{!labelField }'.toUpperCase())){
+                                         obj.label = this[field];                                                                               
+                                     }
+                                     else if((field.toUpperCase()=='{!valueField}'.toUpperCase())){
+                                         obj.value= this[field];                                                                               
+                                     }                                    
+                                }
+                                if('{!specialField}' != 'null' && '{!specialField}' != ''){
+                                	if(this['{!specialField}'] != null && this['{!specialField}'] != ''){
+                                		obj.label += ' *';
+                                	}
+                                }                                
+                                 data.push(obj);
+                             });
+                             //return the dataa
+                             response( data);
+                         }
+                         else{
+														if('{!customErrorMessage}' != ''){
+                            	alert('{!customErrorMessage}');
+                            }else{
+                            	alert('Invalid Field/Object API Name : '+event.message);
+                           	}
+                         }
+                         
+                     }, 
+                      {escape: true}
+                );
+            }     
+        
+        function comboBox{!randomJsIden}(){
+            // filter
+            $j.widget("ui.combobox", {
+                _create: function() {
+                        var self = this,
+                        select = this.element.hide(),
+                        selected = select.children(":selected"),
+                        value = selected.val() ? selected.text() : "";
+                        value = selected.val() ? selected.text() : ({!editMode} ? $j('.hiddenFieldValue{!randomJsIden}').val() : "");
+                        //create a new autocomplete component
+                        var input = this.input = $j("<input>").insertAfter(select).val(value).autocomplete({
+                            delay: 0,
+                            minLength: 0,
+                            source: function(request, response) {
+                               queryData{!randomJsIden}(response ,request.term);
+                            },
+                            select: function(event, ui) {
+                            		//pass the selected value to hidden input field
+                                $j('.hiddenField{!randomJsIden}').val(ui.item.value);  
+                                $j('.hiddenFieldValue{!randomJsIden}').val(ui.item.label);                            
+                                $j(this).val(ui.item.label);
+                                refreshPanel{!randomJsIden}();
+                                if('{!onChangeFunction}' != null && '{!onChangeFunction}' != ''){
+											        		{!onChangeFunction}();
+											        	}
+                                return false;
+                            },
+                            focus: function( event, ui ) {
+                                    $j(input).val( ui.item.label );
+                                    return false;  
+                             }
+                
+                        });
+                    //create a input element
+                    input.data("autocomplete")._renderItem = function(ul, item) {
+                    		$j(ul).css("height","400px").css("overflow","auto");
+                        return $j("<li></li>").data("item.autocomplete", item).append("<a>" + item.label + "</a>").appendTo(ul);
+                    };
+                    $j(input).keyup(function(){
+                        var textVal = $j(input).val();
+
+                        if(textVal!=null && textVal.length==0){
+                             $j('.hiddenField{!randomJsIden}').val('');
+                             $j('.hiddenFieldValue{!randomJsIden}').val('');
+                             refreshPanel{!randomJsIden}();
+                             input.autocomplete("close");
+                         }  
+                    });
+                    //create a new button 
+                    this.button = $j("<button type='button'>&nbsp;</button>").attr("tabIndex", -1).attr("title", "Show All Items").insertAfter(input).button({
+                        icons: {
+                            primary: "ui-icon-triangle-1-s"
+                        },
+                        text: false
+                    }).removeClass("ui-corner-all ui-state-default").addClass("ui-corner-right ui-button-icon").click(function() {
+                        // close if already visible
+                        if (input.autocomplete("widget").is(":visible")) {
+                            input.autocomplete("close");
+                            return;
+                        }
+            
+                        // work around a bug (likely same cause as #5265)
+                        $j(this).blur();
+            
+                        // pass empty string as value to search for, displaying all results
+                        input.autocomplete("search", "");
+                        input.focus();
+                    });
+                },
+                /*
+                *combobox destroy function
+                ***/
+                destroy: function() {
+                    this.input.remove();
+                    this.button.remove();
+                    this.element.show();
+                    $j.Widget.prototype.destroy.call(this);
+                }
+            });
+            
+            $j("#comboBoxCom{!randomJsIden}").combobox();
+        }
+    </script>
+   
+        <apex:actionFunction name="refreshPanel{!randomJsIden}" reRender="hiddenPanel"/> 
+        <apex:outputPanel id="hiddenPanel">
+            <apex:actionRegion >
+                <apex:inputText value="{!targetField}" id="hiddenField" styleClass="hiddenField{!randomJsIden}" style="display:none"/>
+            </apex:actionRegion>
+        </apex:outputPanel>
+        <apex:inputText value="{!selectedVal}" id="hiddenFieldValue" styleClass="hiddenFieldValue{!randomJsIden}" style="display:none"/>
+        <select id="comboBoxCom{!randomJsIden}"/>
+      
+</apex:component>

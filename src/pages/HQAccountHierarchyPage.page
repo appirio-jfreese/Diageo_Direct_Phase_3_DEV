@@ -1,0 +1,303 @@
+<apex:page standardController="Campaign" extensions="HQAccountHierarchyController" id="subPg"
+    sidebar="false" showHeader="false">
+
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery-ui-1.8.15.custom.min.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'utils.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.mousewheel.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.jscrollpane.min.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'imgscale.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.treeview.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.jquery, 'jquery.autosize.js')}"></script>
+  <apex:stylesheet value="{!URLFOR($Resource.Hierarchy, 'Hierarchy.css')}"/>
+  <script type="text/javascript" src="{!URLFOR($Resource.Hierarchy, 'Hierarchy.js')}"></script>
+    <style type="text/css">
+    body, html{
+        overflow: auto;
+    }
+  </style>
+ 
+  <apex:form id="frm">
+    <apex:pageBlock id="pb" rendered="{!NOT(isMemberRequest)}">
+        <div id="pageBlockDiv" style="height:575px; overflow: auto;">
+      <apex:pageMessages />
+    
+      
+      <!-- Add Members -->
+
+      <apex:outputPanel >
+      <apex:pageBlockSection columns="3" >
+        <apex:inputField styleClass="filterInput" id="NAG_inputFields" value="{!campaignObj.National_Account_Group__c}" onChange="selectAccountJS();"/>
+        <apex:inputField styleClass="filterInput" id="MG_inputFields" value="{!campaignObj.Marketing_Group__c}" onChange="selectAccountJS();"/>
+        <apex:inputField styleClass="filterInput" id="KAG_inputFields" value="{!campaignObj.Key_Account_Group__c}" onChange="selectAccountJS();"/>
+        <input id="NAG_inputFields_hidden" value="" type="hidden" name="NAG_inputFields_hidden"/>
+        <input id="MG_inputFields_hidden" value="" type="hidden" name="NAG_inputFields_hidden"/>
+        <input id="KAG_inputFields_hidden" value="" type="hidden" name="NAG_inputFields_hidden"/>
+      </apex:pageBlockSection>
+      
+      <apex:outputPanel >
+        <apex:outputLabel value="{!$Label.HQCalendarBrands}" style="text-align: left;font-weight: bold;
+             white-space: nowrap;font-size: 15px;font-family: Arial,Helvetica,sans-serif;padding-top:20px;"/><br/>
+        <apex:variable var="counter" value="{!0}"/>
+        <apex:repeat value="{!calendarBrands}" var="brnd">          
+            <div style="float:left;">
+                {!IF(counter>0,', ','')}
+                <apex:outputLink value="/{!brnd.Id}" style="font-weight: bold;" styleClass="columnHeadActiveBlack" target="_top">
+                {!brnd.Name}
+<!--                    <apex:outputLabel value="{!brnd.Name}" />-->
+                </apex:outputLink>
+            </div>
+            <apex:variable var="counter" value="{!counter + 1}"/>
+        </apex:repeat><br/><br/>
+      </apex:outputPanel>
+      
+      <apex:outputLabel value="{!$Label.HQPleaseSelectCombination}" 
+        style="text-align: center;white-space: nowrap;font-size: 15px;
+                    font-family: Arial,Helvetica,sans-serif;" rendered="{!arSize = 0}"/>
+<!--      <apex:outputPanel rendered="{!IF(storeAccList.size != 0, true, false)}" id="hierarchyPanel">  -->
+      <apex:outputPanel rendered="{!IF(arSize != 0, true, false)}" id="hierarchyPanel">
+      <div style="width: 100%; height: 400px;padding-top:0px;">
+     
+      <table style="width:100%;overflow:auto;" cellpadding="5">
+       <tr>
+        <td width="50%">
+         <apex:outputLabel value="Account Hierarchy" style="text-align: left;font-weight: bold;
+             white-space: nowrap;font-size: 15px;font-family: Arial,Helvetica,sans-serif;"/>
+            <div class="treeNode">
+                <input type="checkbox" id="store" name="_store" class="bannerCheckBox _cb" />
+                <apex:outputLabel value="Select All Accounts" />
+                <div class="treeNodeInner" style="height: 250px; overflow: auto;">
+                     <c:GroupHierarchyComponent currentId="{!campaignObj.id}" id="grpComp" isFirst="true"/>
+                </div>
+            </div>
+        </td>       
+        <td width="50%">
+            <div style="height: 250px; overflow: auto;">
+            <apex:outputLabel value="Marketing Groups" style="text-align: left;font-weight: bold;
+              white-space: nowrap;font-size: 15px;font-family: Arial,Helvetica,sans-serif;display:block;" 
+              styleClass="grpLabel" />
+            <apex:dataTable value="{!marketingGroupsSet}" var="grp" id="distinctMrktGrpTab" 
+                  rowClasses="odd,even" style="width:80%;">
+                <apex:column style="text-align: left;">
+                    <a href="/{!mrktGrps[grp].Id}" class="{!mrktGrpsClass[grp]} grpNames" 
+                        style="display: none;"><apex:outputText value="{!mrktGrps[grp].Name}"/></a>
+              </apex:column>
+              <apex:column style="text-align: left;">
+                    <input type="checkbox" id="{!grp}" name="{!grp}" class="{!mrktGrpsClass[grp]} grpCheckBox" 
+                        checked="true" style="display: none;"/> 
+              </apex:column>             
+            </apex:dataTable>
+         </div>
+        </td>
+        <td width="50%">
+         <apex:outputLabel value="States covered by selection" styleClass="stateLabel" 
+              style="text-align: left;font-weight: bold;white-space: nowrap;display:block;
+                  font-size: 15px;font-family: Arial,Helvetica,sans-serif;padding-top: 20px;"/>
+         <div style="height: 250px; overflow: auto;">
+            <apex:dataTable value="{!statesSet}" var="st" id="distinctStatesTab" 
+                  rowClasses="odd,even" style="width: 50%;padding-left: 20px;">
+              <apex:column style="width: 60%;text-align: left;">
+                    <apex:outputText value="{!st}" styleClass="{!states[st]} stateNames" 
+                        style="display: none;" />
+              </apex:column>
+              <apex:column style="width: 10%;text-align: left;">
+                        <input type="checkbox" id="{!st}" name="{!st}" class="{!states[st]} stateCheckBox" 
+                        checked="true" style="display: none;"/> 
+              </apex:column>             
+            </apex:dataTable>
+         </div>
+        </td>
+        
+       </tr>
+       <tr>
+        <td width="50%">
+        </td>
+        <td width="50%" style="display: none;">
+            <apex:outputLabel value="States Associated with the Campaign" styleClass="statesAssociated" 
+             style="text-align: left;font-weight: bold;white-space: nowrap;display:block;
+                  font-size: 15px;font-family: Arial,Helvetica,sans-serif;padding-top: 20px;"/>
+          <div style="height: 250px; overflow: auto;">
+            <apex:dataTable value="{!existingCampStatesNames}" var="est" id="existingStatesTab" 
+                  rowClasses="odd,even" style="width: 50%;padding-left: 20px;">
+              <apex:column style="width: 60%;text-align: left;">
+                        <apex:facet name="header">State Name</apex:facet>
+                    <apex:outputText value="{!est}" styleClass="existingStateNames" />
+              </apex:column>
+              <apex:column style="width: 10%;text-align: left;">
+                        <apex:facet name="header">No of Stores</apex:facet>
+                    <apex:outputText value="{!existingCampStates[est]}" styleClass="existingStateStores" />
+              </apex:column>             
+            </apex:dataTable>
+            </div>
+        </td>
+        </tr>
+        <tr><td></td><td></td>
+        <td style="height: 60px;">
+            <apex:outputLabel value="Remaining States" styleClass="remStateLabel" 
+             style="text-align: left;font-weight: bold;white-space: nowrap;
+                 font-size: 15px;font-family: Arial,Helvetica,sans-serif;padding-top: 20px;padding-bottom: 0px;"/>
+            <apex:selectList value="{!selectedState}" size="1" id="selectState" onChange="javascript:stateChanged(this.value);"
+                multiselect="false" styleClass="allStateOptions">
+                <apex:selectOptions value="{!allStatesList}"/>
+            </apex:selectList>
+            <apex:repeat value="{!allStatesList}" var="stateOp">
+                <input id="{!stateOp.value}" value="{!stateOp.value}" type="hidden" name="{!stateOp.label}" class="hiddenStateName"/>
+            </apex:repeat>
+            <a href="javascript:functionToAddState()" id="addToState" value="">(add)</a> 
+        </td>
+        </tr>
+        </table>
+       
+        <apex:inputHidden value="{!allSelectedStateCheckBox}" id="allStateChb"/>
+        <apex:inputHidden value="{!allSelectedStoreAccounts}" id="allStoreAcc"/>
+        <apex:inputHidden value="{!selectedBrandIds}" id="allBrands"/>
+        <apex:inputHidden value="{!allSelectedMarketingGrps}" id="allMarketingGrp"/>
+        <div style="height: 60px;padding-left: 30%;">
+            <apex:commandButton id="addMember" onclick="createCampaignMembersJS();return false;" rerender="pb" value="Add Members to Campaign" status="status"/>
+                        &nbsp;&nbsp;
+                        <apex:commandButton id="reset" action="{!reSet}" rerender="frm" value="Reset" oncomplete="checkAllAfterChange();" status="status"/>
+        </div>
+        </div>
+      </apex:outputPanel>
+     </apex:outputPanel>
+     </div>
+    </apex:pageBlock>
+    <apex:actionFunction name="selectAccountJS" action="{!selectAccount}" rerender="frm,hierarchyDiv" status="status" oncomplete="checkAllAfterChange();"/>
+    <apex:actionFunction name="createCampaignMembers" action="{!createCampaignMembers}" rerender="frm,hierarchyDiv" oncomplete="onPageLoad();" status="status"/>
+    <input id="isSelected" value="{!isSelected}" type="hidden" name="isSelected" class="isSelectedHidden"/>
+    
+        <c:ViewAllCampaignMembers campaignId="{!campaignObj.id}" id="campMembers" isFirst="true" rendered="{!NOT(isMemberRequest)}"/>
+        
+        <apex:pageBlock rendered="{!isMemberRequest}">
+          <apex:pageBlockButtons >
+            <apex:commandButton value="Save" action="{!createNewLeadCampaignMember}" oncomplete="refreshJSComponent();return false;" status="status"/>
+            <apex:commandButton value="Cancel" onclick="window.close();"/>
+          </apex:pageBlockButtons>
+          <apex:pageBlockSection >
+            <apex:inputField value="{!lead.Company}"/>
+              <apex:inputField value="{!lead.FirstName}"/>
+              <apex:inputField value="{!lead.LastName}"/>
+              <apex:inputField value="{!lead.Phone}"/>
+              <apex:inputField value="{!lead.Email}"/>
+              <apex:inputField value="{!lead.Street}"/>
+              <apex:inputField value="{!lead.City}"/>
+              <apex:inputField value="{!lead.State}"/>
+              <apex:inputField value="{!lead.PostalCode}"/>
+              <apex:inputField value="{!lead.Country}"/>
+          </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+  </apex:form>
+  <apex:actionstatus id="status">
+        <apex:facet name="start">
+          <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb;
+               height: 100%;opacity:0.65;width:100%;"> 
+            <div class="waitingHolder" style="top: 74.2px; width: 91px;">
+              <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+              <span class="waitingDescription">Please Wait...</span>
+            </div>
+          </div>
+        </apex:facet>
+    </apex:actionstatus>
+  
+    <script type="text/javascript">
+        function checkFilterOnLoad(){
+        if(jQuery('div.filter-wrapper').length != 0){
+            jQuery('div.expander').trigger('click');
+            while(jQuery('div.filter-wrapper').hasClass('expanded')){
+                jQuery('div.expander').trigger('click');
+                    }
+                }
+      }
+      
+      
+      // START  : Changed for TA1924/DE1006 : By Basant Verma
+      function checkPreviousChecked(){
+        var storeAccValues = document.getElementById("subPg:frm:pb:allStoreAcc").value;
+        var allAcc = storeAccValues.split(',');
+          var index = 0;
+          for(index = 0; index < allAcc.length; index++){
+            if(!jQuery('#'+allAcc[index]).is(':checked') && jQuery('#'+allAcc[index]).hasClass('bannerCheckBox')){
+                jQuery('#'+allAcc[index]).prop('checked', true);
+                rebuildAllStates(jQuery('#'+allAcc[index]));
+                }
+                }
+                
+        jQuery('.AlwaysShow').each(function(){
+                    jQuery(this).css('display', 'block');
+                });
+                
+                
+                    jQuery('input[type=checkbox]').each(function () {
+                        if(jQuery(this).css('display') == 'block' && jQuery(this).is(':checked') && !jQuery(this).hasClass('AlwaysShow')){
+                            jQuery(this).prop('checked', false);
+                        }
+                    });
+                
+            }
+      
+      jQuery(document).ready(function() {  
+        onPageLoad();
+      });
+      
+      function onPageLoad(){
+        checkFilterOnLoad();
+        checkPreviousChecked();
+        
+        populateHidden();
+      }
+      
+      function populateHidden(){
+        jQuery(".filterInput").each(function (){
+            var idTextArr = jQuery(this).attr("Id").split(":");
+            var idText = idTextArr[idTextArr.length-1]+'_hidden';
+          jQuery("#"+idText).val(jQuery(this).val());
+        });
+      }
+      
+      function checkAllAfterChange() {
+        if(jQuery('#isSelected').val() == 'true'){
+            jQuery('.bannerCheckBox').each(function(){
+                if(!jQuery(this).is(':checked') && jQuery(this).hasClass('_cb')){
+                    jQuery(this).prop('checked', true);
+                    rebuildAllStates(jQuery(this));
+                }
+            });
+        }else{
+            onPageLoad();
+        }
+        populateHidden();
+      }
+      
+      function refreshJSComponent(){
+            //window.opener.location = '/apex/ViewAllCampaignMembers?Id={!campaignObj.Id}';
+            window.opener.location = '/apex/HQAccountHierarchyPage?Id={!campaignObj.Id}';
+            window.close();  
+        }
+          
+        function openChildWindow(){
+          var windowW = 600;
+          var windowH = 250;
+          var windowX = (screen.width/2)-(windowW/2);
+          var windowY = (screen.height/2)-(windowH/2);
+          var childWin = window.open('/apex/HQAccountHierarchyPage?Id={!campaignObj.Id}&method=CreateMember','AddCampaignMember','width='+windowW+',height='+windowH+',top='+windowY+',left='+windowX+',scrollbars,resizable');
+        }
+        jQuery(".pageDescription").first().focus();
+        
+        jQuery(".filterInput").live('keypress', function (e) {
+            var k = e.keyCode || e.which;
+            if (k == 13) {
+              //jQuery(this).focusout();
+              //jQuery(this).trigger("change");
+              var idTextArr = jQuery(this).attr("Id").split(":");
+                    var idText = idTextArr[idTextArr.length-1]+'_hidden';
+                    if(jQuery("#"+idText).val() != jQuery(this).val()){
+                jQuery(this).trigger("change");
+              }
+              return false;
+            }
+          });
+         
+    </script>
+ 
+</apex:page>

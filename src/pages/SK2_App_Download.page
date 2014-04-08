@@ -1,0 +1,115 @@
+<apex:page showHeader="false" standardStylesheets="false" title="Diageo Mobile Survey">
+  
+  <head>
+    <meta name="viewport" content="width=device-width"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Diageo Direct</title>
+    <link rel="stylesheet" type="text/css" href="{!$Resource.DMSResources}/mobile-landingpage-responsive/css/landing.css"/>
+
+    <!-- ICONS -->
+    <!--<link rel="shortcut icon" type="image/ico" href="{!$Resource.DMSResources}/mobile-landingpage-responsive/favicon.ico" />-->
+
+    <!--[if gte IE 9]>
+    <style type="text/css">
+        body,.header,.footer,.primary {filter:none}
+    </style>
+    <![endif]-->
+</head>
+
+  
+<body>
+
+<!-- BODY -->
+<table class="body-wrap">
+    <tr>
+        <td>
+            <table class="container">
+                <tr>
+                    <td class="align-right"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/shadow-l.png" alt=""/></td>
+                    <td class="content">
+                        <table>
+                            <tr>
+                                <td class="header">
+                                    <img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/logo_diageo-direct.png" alt="Diageo Direct"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="message">
+                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="main">
+                                    <table>
+                                        <tr>
+                                            <td class="logo">
+                                                <a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.4.3.plist" >
+                                                    <img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/icon/Icon-Small-50@2x.png" alt="Download App"/>
+                                                </a>
+                                                <a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.4.3.plist" class="primary button">Install</a>
+                                            </td>
+                                            <td class="description">
+                                                <p>SK2 Diageo Direct Survey requires iOS6+ and iPhone 4s, 5+. </p>
+                                                <p>Click on the Install button directly from Safari on your supported device to install. </p>
+                                                <br/>
+                                                <p>Previous Versions:
+                                                <br/>Note: Version 1.4.2 build skipped 
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.4.1.plist" >Version 1.4.1</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.4.0.plist" >Version 1.4.0</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.3.2.plist" >Version 1.3.2</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.3.1.plist" >Version 1.3.1</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.3.0_b6.plist" >Version 1.3.0 (build 6)</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.3.0_b5.plist" >Version 1.3.0 (build 5)</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey_SK2_v1.3.0_b4.plist" >Version 1.3.0 (build 4)</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey23sk2.plist" >Version 1.3.0 (build 1)</a>
+                                                <br/><a href="itms-services://?action=download-manifest&url=https://s3.amazonaws.com/mobilesurvey/fieldsurvey24sk2.plist">Version 1.1.0</a>
+                                                </p>
+                                                
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="terms-wrapper">
+                                                <p class="questions">Questions or comments? Please contact salesforce-support-sfa@diageo.com</p>
+                                                <div class="terms">
+                                                    <p> <a href="http://diageodirect.force.com/DMS_Terms_Page">TERMS AND CONDITIONS</a>  </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                            <tr>
+                                <td class="footer">
+                                    <table>
+                                        <tr>
+                                            <td class="logo"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/logo_diageo-direct.png" alt="Diageo Direct"/></td>
+                                        </tr>
+                                        <tr>    
+                                            <td><p>Copyright 2013. ©2013 Appirio. All Rights Reserved.</p></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="align-left"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/shadow-r.png" alt=""/></td>
+                </tr>
+                <tr class="bottom">
+                    <td class="align-right"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/shadow-bl.png" alt=""/></td>
+                    <td class="center"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/shadow-b.png" alt=""/></td>
+                    <td class="align-left"><img src="{!$Resource.DMSResources}/mobile-landingpage-responsive/i/shadow-br.png" alt=""/></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<!-- /BODY -->
+
+</body>  
+
+</apex:page>
