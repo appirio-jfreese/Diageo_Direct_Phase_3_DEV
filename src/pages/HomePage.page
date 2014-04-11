@@ -28,6 +28,10 @@ Story/Task  : US874/TA1686
 Updated By  : Randy Wandell (Appirio)
 Date        : 04/10/14
 Story/Task  : US904/TA2222
+
+Updated By  : Randy Wandell (Appirio)
+Date        : 04/11/14
+Story/Task  : US904/TA2222 (Change made in developer console outside of GIT)
 ------------------------------------------------------------------------------------------------------------------->
 <apex:page showheader="false" standardStylesheets="false" sidebar="false" title="Diageo" controller="Controller_Home">
     <apex:stylesheet value="{!URLFOR($Resource.CommonPage, 'style'+siteTheme+'.css')}"/>
