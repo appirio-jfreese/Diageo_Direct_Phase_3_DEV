@@ -887,13 +887,19 @@ public static Boolean saveCartItems(List<CartItemWrapper> cartItemWrappers) {
         POS_WBSUtil util = new POS_WBSUtil(cartItems);
         util.populateWBSData(); 
         
+        System.debug(Logginglevel.ERROR,'******** Finished populating WBS Data');
+        
         upsert cartItems;
         
         cart.Status__c = 'Submitted';
         cart.Last_Submitted__c = Datetime.now();
         system.debug('Last Submitted 2' + cart.Last_Submitted__c); //Testing
         
+        System.debug(Logginglevel.ERROR,'******** Finished upsert of cartItems');
+        
         update cart;
+
+        System.debug(Logginglevel.ERROR,'******** Finished cart update');
         
         opSuccess = true;
     }
